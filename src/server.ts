@@ -1,5 +1,6 @@
 import app from './app';
-const PORT = 3000;
+import { environment } from './environments/environment';
+const PORT = environment.schnackPort;
 
 app.listen(PORT, () => {
     console.log(new Date() + ' Express server listening on port ' + PORT);
