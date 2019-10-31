@@ -16,16 +16,12 @@ export class DatabaseService implements IDatabaseService {
   connection: Connection;
 
   // interface members
-  public initialize(app: Application): void {
-    createConnection({
+  public async initialize(app: Application): Promise<any> {
+    return createConnection({
         type: 'sqlite',
         database: 'data.sqlite',
         entities: [Comment, User],
         synchronize: true,
-      })
-      .then(result => {
-        this.connection = result;
-      })
-      .catch(error => console.log(error));
+    });
   }
 }

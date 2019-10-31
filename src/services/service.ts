@@ -1,5 +1,5 @@
 import { Application } from 'express';
 
 export interface IService {
-  initialize(app: Application);
+  initialize(app: Application): Promise<any>;
 }

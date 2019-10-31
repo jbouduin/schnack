@@ -37,6 +37,9 @@ export class User {
   provider_id: string;
 
   @Column()
+  administrator: boolean;
+
+  @Column()
   blocked: boolean;
 
   @Column()
@@ -45,7 +48,7 @@ export class User {
   @Column({
     type: 'nvarchar',
     length: 255,
-    nullable: false
+    nullable: true
   })
   url: string
 

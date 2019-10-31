@@ -16,7 +16,7 @@ export interface IRouteService extends IService {
 export class RouteService implements IRouteService {
 
   // interface members
-  public initialize(app: Application): void {
+  public async initialize(app: Application): Promise<any> {
 
     app.route('/hello')
       .all((request: Request, response: Response) => {
@@ -45,6 +45,8 @@ export class RouteService implements IRouteService {
       .all((request: Request, response: Response) => {
         response.sendStatus(404);
       });
+
+    return Promise.resolve(true);
   }
 
   // constructor

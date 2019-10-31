@@ -12,6 +12,7 @@ import { IAuthorizationService, AuthorizationService } from './services';
 import { ICommentService, CommentService } from './services';
 import { IDatabaseService, DatabaseService } from './services';
 import { IRouteService, RouteService } from './services';
+import { IUserService, UserService } from './services';
 
 const container = new Container();
 
@@ -24,5 +25,6 @@ container.bind<IAuthorizationService>(SERVICETYPES.AuthorizationService).to(Auth
 container.bind<ICommentService>(SERVICETYPES.CommentService).to(CommentService);
 container.bind<IDatabaseService>(SERVICETYPES.DatabaseService).to(DatabaseService).inSingletonScope();
 container.bind<IRouteService>(SERVICETYPES.RouteService).to(RouteService);
+container.bind<IUserService>(SERVICETYPES.UserService).to(UserService);
 
 export default container;

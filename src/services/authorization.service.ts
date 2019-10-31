@@ -18,13 +18,15 @@ export class AuthorizationService implements IAuthorizationService {
 
   // fields
   private providers = new Array<IProvider>();
+
   // interface members
-  public initialize(app: Application): void {
+  public async initialize(app: Application): Promise<any> {
     this.providers.push({ id: 'twitter', name: 'Twitter' });
     this.providers.push({ id: 'github', name: 'Github' });
     this.providers.push({ id: 'google', name: 'Google' });
     this.providers.push({ id: 'facebook', name: 'Facebook' });
     this.providers.push({ id: 'mastodon', name: 'Mastodon' });
+    return Promise.resolve(this.providers);
   }
 
   public getProviders(): Array<IProvider> {

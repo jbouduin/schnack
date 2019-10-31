@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 
-import { IAuthorizationService, IDatabaseService, IRouteService } from './services';
+import { IAuthorizationService, IDatabaseService, IRouteService, IUserService } from './services';
 import container from './inversify.config';
 import SERVICETYPES from './services/service.types';
 
@@ -12,9 +12,11 @@ class App {
   public constructor() {
     this.app = express();
     this.config();
-    container.get<IAuthorizationService>(SERVICETYPES.AuthorizationService).initialize(this.app);
-    container.get<IDatabaseService>(SERVICETYPES.DatabaseService).initialize(this.app);
     container.get<IRouteService>(SERVICETYPES.RouteService).initialize(this.app);
+    container.get<IAuthorizationService>(SERVICETYPES.AuthorizationService).initialize(this.app);
+    container.get<IDatabaseService>(SERVICETYPES.DatabaseService)
+      .initialize(this.app)
+      .then(db => container.get<IUserService>(SERVICETYPES.UserService).initialize(this.app));
   }
 
   private config(): void {

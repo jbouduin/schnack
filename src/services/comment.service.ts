@@ -15,7 +15,9 @@ export interface ICommentService extends IService {
 export class CommentService implements ICommentService {
 
   // interface members
-  public initialize(app: Application): void { }
+  public async initialize(app: Application): Promise<any> {
+    return Promise.resolve(true);
+  }
 
   public async getCommentsBySlug(slug: string): Promise<Array<Comment>> {
     const commentRepository = getRepository(Comment);
