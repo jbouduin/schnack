@@ -28,7 +28,6 @@
     "repository": "git@github.com:gka/schnack.git",
     "dependencies": {
         "body-parser": "^1.18.3",
-        "connect-sqlite3": "^0.9.11",
         "cors": "^2.8.5",
         "express": "^4.16.4",
         "express-session": "^1.15.6",
@@ -48,8 +47,8 @@
         "reflect-metadata": "^0.1.13",
         "request": "^2.88.0",
         "rss": "^1.2.2",
-        "sqlite": "^3.0.0",
         "sqlite3": "^4.0.4",
+        "typeorm": "^0.2.20",
         "unfetch": "^3.1.2",
         "web-push": "^3.3.3"
     },

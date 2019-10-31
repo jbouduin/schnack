@@ -2,26 +2,21 @@ import { Application, Request, Response } from 'express';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 
+import { IService } from './service';
 import CONTROLLERTYPES from '../controllers/controller.types';
 
 import { IHomeController } from 'controllers';
 import { ICommentController } from 'controllers';
 
 
-export interface IRouteService {
-  setRoutes(app: Application): void;
+export interface IRouteService extends IService {
 }
 
 @injectable()
 export class RouteService implements IRouteService {
 
-  // constructor
-  public constructor(
-    @inject(CONTROLLERTYPES.CommentController) private commentController: ICommentController,
-    @inject(CONTROLLERTYPES.HomeController) private homeController: IHomeController
-  ) { }
-
-  public setRoutes(app: Application): void {
+  // interface members
+  public initialize(app: Application): void {
 
     app.route('/hello')
       .all((request: Request, response: Response) => {
@@ -51,4 +46,10 @@ export class RouteService implements IRouteService {
         response.sendStatus(404);
       });
   }
+
+  // constructor
+  public constructor(
+    @inject(CONTROLLERTYPES.CommentController) private commentController: ICommentController,
+    @inject(CONTROLLERTYPES.HomeController) private homeController: IHomeController
+  ) { }
 }

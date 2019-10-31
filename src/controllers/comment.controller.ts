@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
-import { injectable } from 'inversify';
+import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
+
+import { IAuthorizationService, ICommentService } from '../services';
+import SERVICETYPES from '../services/service.types';
 
 export interface ICommentController {
   approveComment(_request: Request, response: Response): void;
@@ -12,6 +15,7 @@ export interface ICommentController {
 @injectable()
 export class CommentController implements ICommentController {
 
+  // interface members
   approveComment(request: Request, response: Response): void  {
     const commentId = request.params['id'];
     console.log(`in approveComment ${commentId}`);
@@ -26,8 +30,12 @@ export class CommentController implements ICommentController {
 
   getComments(request: Request, response: Response): void {
     const slug = request.params['slug'];
-    console.log(`in getComments ${slug}`);
-    response.sendStatus(500);
+    this.commentService.getCommentsBySlug(slug).then(comments =>
+      response.send({
+        user: null,
+        auth: this.authorizationService.getProviders(),
+        slug,
+        comments: comments}));
   }
 
   postComment(request: Request, response: Response): void {
@@ -35,4 +43,9 @@ export class CommentController implements ICommentController {
     console.log(`in postComment ${slug}`);
     response.sendStatus(500);
   }
+
+  // constructor
+  public constructor(
+    @inject(SERVICETYPES.AuthorizationService) private authorizationService: IAuthorizationService,
+    @inject(SERVICETYPES.CommentService) private commentService: ICommentService) { }
 }
