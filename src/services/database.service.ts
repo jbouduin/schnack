@@ -3,7 +3,7 @@ import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 import { createConnection, Connection} from "typeorm";
 
-import { Comment, User } from '../db/entities';
+import { Comment, Session, User } from '../db/entities';
 import { environment } from '../environments/environment';
 import { IService } from './service';
 
@@ -20,7 +20,7 @@ export class DatabaseService implements IDatabaseService {
     return createConnection({
         type: 'sqlite',
         database: 'data.sqlite',
-        entities: [Comment, User],
+        entities: [Comment, Session, User],
         synchronize: true,
     });
   }

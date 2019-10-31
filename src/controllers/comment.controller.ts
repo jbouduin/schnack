@@ -30,7 +30,7 @@ export class CommentController implements ICommentController {
 
   getComments(request: Request, response: Response): void {
     const slug = request.params['slug'];
-    this.commentService.getCommentsBySlug(slug).then(comments =>
+    this.commentService.getCommentsBySlug(slug, 1).then(comments =>
       response.send({
         user: null,
         auth: this.authorizationService.getProviders(),

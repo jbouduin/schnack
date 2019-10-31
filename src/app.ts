@@ -13,10 +13,12 @@ class App {
     this.app = express();
     this.config();
     container.get<IRouteService>(SERVICETYPES.RouteService).initialize(this.app);
-    container.get<IAuthorizationService>(SERVICETYPES.AuthorizationService).initialize(this.app);
     container.get<IDatabaseService>(SERVICETYPES.DatabaseService)
       .initialize(this.app)
-      .then(db => container.get<IUserService>(SERVICETYPES.UserService).initialize(this.app));
+      .then(db => {
+        container.get<IUserService>(SERVICETYPES.UserService).initialize(this.app);
+        container.get<IAuthorizationService>(SERVICETYPES.AuthorizationService).initialize(this.app);
+      });
   }
 
   private config(): void {
@@ -31,10 +33,7 @@ class App {
 
 export default new App().app;
 /*
-const express = require('express');
-const app = express();
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const moment = require('moment');
 
 const RSS = require('rss');

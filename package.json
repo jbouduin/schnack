@@ -28,6 +28,7 @@
     "repository": "git@github.com:gka/schnack.git",
     "dependencies": {
         "body-parser": "^1.18.3",
+        "connect-typeorm": "^1.1.1",
         "cors": "^2.8.5",
         "express": "^4.16.4",
         "express-session": "^1.15.6",
@@ -41,6 +42,8 @@
         "passport-facebook": "^2.1.1",
         "passport-github2": "^0.1.11",
         "passport-google-oauth": "^1.0.0",
+        "passport-instagram": "^1.0.0",
+        "passport-linkedin": "^1.0.0",
         "passport-mastodon": "^0.1.3",
         "passport-twitter": "^1.0.4",
         "pushover-notifications": "^0.2.4",
@@ -49,6 +52,7 @@
         "rss": "^1.2.2",
         "sqlite3": "^4.0.4",
         "typeorm": "^0.2.20",
+        "typeorm-static": "^1.1.1",
         "unfetch": "^3.1.2",
         "web-push": "^3.3.3"
     },
