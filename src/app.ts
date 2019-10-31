@@ -1,3 +1,32 @@
+import * as express from 'express';
+import * as bodyParser from 'body-parser';
+
+import { IRouteService } from './services';
+import container from './inversify.config';
+import SERVICETYPES from './services/service.types';
+
+class App {
+
+  public app: express.Application;
+
+  public constructor() {
+    this.app = express();
+    this.config();
+    container.get<IRouteService>(SERVICETYPES.RouteService).setRoutes(this.app);
+  }
+
+  private config(): void {
+    this.app.use(express.static('build'));
+    this.app.use(express.static('test'));
+    // support application/json type post data
+    this.app.use(bodyParser.json());
+    // support application/x-www-form-urlencoded post data
+    this.app.use(bodyParser.urlencoded({ extended: false }));
+  }
+}
+
+export default new App().app;
+/*
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -186,8 +215,6 @@ function run(db) {
         );
     }
 
-    var server = app.listen(config.get('port'), config.get('host'), err => {
-        if (err) throw err;
-        console.error(`server listening on ${server.address().port}`);
-    });
+
 }
+*/
