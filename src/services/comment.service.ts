@@ -1,8 +1,7 @@
 import { Application } from 'express';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
-import { Brackets, createQueryBuilder, getRepository } from "typeorm";
-
+import { Brackets, createQueryBuilder, getRepository } from 'typeorm';
 
 import { Comment, User } from '../db/entities';
 import { IService } from './service';
@@ -44,7 +43,7 @@ export class CommentService implements ICommentService {
     .addSelect('user.trusted', 'trusted')
     .addSelect('user.provider', 'provider')
     .addSelect('comment.reply_to', 'reply_to')
-    .where('comment.slug = :slug', { slug: slug })
+    .where('comment.slug = :slug', { slug })
     .andWhere(new Brackets(qb0 =>
       qb0.where(
         new Brackets(qb1 =>
@@ -57,7 +56,7 @@ export class CommentService implements ICommentService {
             )
           )
         )
-        .orWhere('user.id = :userId', { userId: userId})
+        .orWhere('user.id = :userId', { userId })
       )
     )
     .printSql()

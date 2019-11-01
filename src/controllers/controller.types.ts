@@ -1,6 +1,6 @@
 const CONTROLLERTYPES = {
   CommentController: Symbol('CommentController'),
-  HomeController: Symbol('HomeController'),
+  HomeController: Symbol('HomeController')
 };
 
 export default CONTROLLERTYPES;

@@ -1,8 +1,8 @@
-import * as express from 'express';
 import * as bodyParser from 'body-parser';
+import * as express from 'express';
 
-import { IAuthorizationService, IDatabaseService, IRouteService, IUserService } from './services';
 import container from './inversify.config';
+import { IAuthorizationService, IDatabaseService, IRouteService, IUserService } from './services';
 import SERVICETYPES from './services/service.types';
 
 class App {
@@ -179,8 +179,8 @@ function run(db) {
             (err, row) => {
                 if (err) console.error(err.message);
                 feed.item({
-                    title: `New comment on "${row.slug}"`,
-                    description: `A new comment on "${row.slug}" is awaiting moderation`,
+                    title: `New comment on '${row.slug}'`,
+                    description: `A new comment on '${row.slug}' is awaiting moderation`,
                     url: row.slug + '/' + row.id,
                     guid: row.slug + '/' + row.id,
                     date: row.created_at
@@ -214,10 +214,8 @@ function run(db) {
     if (config.get('dev')) {
         // create dev user for testing purposes
         db.run(
-            'INSERT OR IGNORE INTO user (id,name,blocked,trusted,created_at) VALUES (1,"dev",0,1,datetime())'
+            'INSERT OR IGNORE INTO user (id,name,blocked,trusted,created_at) VALUES (1,'dev',0,1,datetime())'
         );
     }
-
-
 }
 */

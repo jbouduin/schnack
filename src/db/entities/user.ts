@@ -1,68 +1,46 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { CreateDateColumn, UpdateDateColumn, VersionColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { CreateDateColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
 
 import { Comment } from './comment';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number
+  public id: number;
 
-  @Column({
-    type: 'nvarchar',
-    length: 128,
-    nullable: false
-  })
-  name: string;
+  @Column('nvarchar', { length: 128, nullable: false })
+  public name: string;
 
-  @Column({
-    type: 'nvarchar',
-    length: 128,
-    nullable: false
-  })
-  display_name: string
+  @Column('nvarchar', { length: 128, nullable: false })
+  public display_name: string;
 
-  @Column({
-    type: 'nvarchar',
-    length: 128,
-    nullable: false
-  })
-  provider: string;
+  @Column('nvarchar', { length: 128, nullable: false })
+  public provider: string;
 
-  @Column({
-    type: 'nvarchar',
-    length: 128,
-    nullable: false
-  })
-  provider_id: string;
+  @Column('nvarchar', { length: 128, nullable: false })
+  public provider_id: string;
 
   @Column()
-  administrator: boolean;
+  public administrator: boolean;
 
   @Column()
-  blocked: boolean;
+  public blocked: boolean;
 
   @Column()
-  trusted: boolean;
+  public trusted: boolean;
 
-  @Column({
-    type: 'nvarchar',
-    length: 255,
-    nullable: true
-  })
-  url: string
+  @Column('nvarchar', { length: 255, nullable: true })
+  public url: string;
 
   @OneToMany(type => Comment, comment => comment.user)
-  comments: Promise<Comment[]>;
+  public comments: Promise<Array<Comment>>;
 
   @CreateDateColumn()
-  created: Date;
+  public created: Date;
 
   @UpdateDateColumn()
-  modified: Date;
+  public modified: Date;
 
   @VersionColumn()
-  version: number;
-
-
+  public version: number;
 }

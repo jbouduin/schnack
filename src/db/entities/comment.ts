@@ -1,45 +1,37 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { CreateDateColumn, UpdateDateColumn, VersionColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { CreateDateColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
 
 import { User } from './user';
 
 @Entity()
 export class Comment {
   @PrimaryGeneratedColumn()
-  id: number;
+  public id: number;
 
   @ManyToOne(type => User, user => user.comments, { nullable: false })
-  user: User;
+  public user: User;
 
   @Column()
-  reply_to: number;
+  public reply_to: number;
 
-  @Column({
-    type: 'varchar',
-    length: 128,
-    nullable: false
-  })
-  slug: string;
+  @Column('nvarchar', { length: 128, nullable: false })
+  public slug: string;
 
-  @Column({
-    type: 'varchar',
-    length: 4096,
-    nullable: false
-  })
-  comment: string;
+  @Column('nvarchar', { length: 4096, nullable: false })
+  public comment: string;
 
   @Column()
-  rejected: boolean;
+  public rejected: boolean;
 
   @Column()
-  approved: boolean;
+  public approved: boolean;
 
   @CreateDateColumn()
-  created: Date;
+  public created: Date;
 
   @UpdateDateColumn()
-  modified: Date;
+  public modified: Date;
 
   @VersionColumn()
-  version: number;
+  public version: number;
 }

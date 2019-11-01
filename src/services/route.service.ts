@@ -1,19 +1,23 @@
 import * as express from 'express';
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 
-import { IService } from './service';
+import { IHomeController } from '../controllers';
+import { ICommentController } from '../controllers';
 import CONTROLLERTYPES from '../controllers/controller.types';
 
-import { IHomeController } from 'controllers';
-import { ICommentController } from 'controllers';
+import { IService } from './service';
 
-
-export interface IRouteService extends IService {
-}
+export interface IRouteService extends IService { }
 
 @injectable()
 export class RouteService implements IRouteService {
+
+  // constructor
+  public constructor(
+    @inject(CONTROLLERTYPES.CommentController) private commentController: ICommentController,
+    @inject(CONTROLLERTYPES.HomeController) private homeController: IHomeController
+  ) { }
 
   // interface members
   public async initialize(app: express.Application): Promise<any> {
@@ -48,14 +52,14 @@ export class RouteService implements IRouteService {
           this.commentController.rejectComment(request, response);
       });
 
+    // TODO post /user/:id/block
+    // TODO post /user/:id/unblock
+    // TODO post /user/:id/trust
+    // TODO post /user/:id/untrust
+    // TODO post /user/:id/grantadmin
+    // TODO post /user/:id/revokeadmin
     app.use(router);
 
     return Promise.resolve(true);
   }
-
-  // constructor
-  public constructor(
-    @inject(CONTROLLERTYPES.CommentController) private commentController: ICommentController,
-    @inject(CONTROLLERTYPES.HomeController) private homeController: IHomeController
-  ) { }
 }

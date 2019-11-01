@@ -1,8 +1,7 @@
 import { Application } from 'express';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
-import { getRepository } from "typeorm";
-
+import { getRepository } from 'typeorm';
 
 import { Comment, User } from '../db/entities';
 import { IService } from './service';
@@ -34,7 +33,7 @@ export class UserService implements IUserService {
       newUser.blocked = false;
       newUser.trusted = true;
       return repository.save(newUser);
-    };
+    }
     return Promise.resolve(true);
   }
 
@@ -45,8 +44,8 @@ export class UserService implements IUserService {
     const userRepository = getRepository(User);
     return userRepository.createQueryBuilder('user')
       .select()
-      .where('user.provider = :provider', { provider: provider })
-      .andWhere('user.provider_id = :providerId', { providerId: providerId })
+      .where('user.provider = :provider', { provider })
+      .andWhere('user.provider_id = :providerId', { providerId })
       .getOne();
   }
 

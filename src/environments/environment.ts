@@ -1,25 +1,33 @@
 export const environment = {
   production: false,
+
   schnackHostName: process.env.SCHNACK_HOST_NAME || 'localhost',
-  schnackProtocol: 'http',
   schnackPort: 3000,
-  oauthSecret: "xxxxx",
+  schnackProtocol: 'http',
+
+  oauthSecret: 'xxxxx',
+
   oauthTwitter: true,
-  oauthTwitterConsumerKey: "xxxxx",
-  oauthTwitterConsumerSecret: "xxxxx",
+  oauthTwitterConsumerKey: 'xxxxx',
+  oauthTwitterConsumerSecret: 'xxxxx',
+
   oauthGitHub: false,
-  oauthGitHubClientId: "xxxxx",
-  oauthGitHubClientSecret: "xxxxx",
+  oauthGitHubClientId: 'xxxxx',
+  oauthGitHubClientSecret: 'xxxxx',
+
   oauthGoogle: false,
-  oauthGoogleClientId: "xxxxx",
-  oauthGoogleClientSecret: "xxxxx",
+  oauthGoogleClientId: 'xxxxx',
+  oauthGoogleClientSecret: 'xxxxx',
+
   oauthFacebook: false,
-  oauthFacebookClientId: "xxxxx",
-  oauthFacebookClientSecret: "xxxxx",
+  oauthFacebookClientId: 'xxxxx',
+  oauthFacebookClientSecret: 'xxxxx',
+
   oauthLinkedIn: false,
-  oauthLinkedInClientId: "xxxxx",
-  oauthLinkedInClientSecret: "xxxxx",
+  oauthLinkedInClientId: 'xxxxx',
+  oauthLinkedInClientSecret: 'xxxxx',
+
   oauthInstagram: false,
-  oauthInstagramClientId: "xxxxx",
-  oauthInstagramClientSecret: "xxxxx"
+  oauthInstagramClientId: 'xxxxx',
+  oauthInstagramClientSecret: 'xxxxx'
 };

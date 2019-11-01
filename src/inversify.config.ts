@@ -3,16 +3,19 @@ import { Container } from 'inversify';
 import CONTROLLERTYPES from './controllers/controller.types';
 import SERVICETYPES from './services/service.types';
 
+/* tslint:disable ordered-imports */
 // controllers
 import { ICommentController, CommentController } from './controllers';
 import { IHomeController, HomeController } from './controllers';
 
 // services
+
 import { IAuthorizationService, AuthorizationService } from './services';
 import { ICommentService, CommentService } from './services';
 import { IDatabaseService, DatabaseService } from './services';
 import { IRouteService, RouteService } from './services';
 import { IUserService, UserService } from './services';
+/* tslint:enable ordered-imports */
 
 const container = new Container();
 

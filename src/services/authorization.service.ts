@@ -1,27 +1,27 @@
-import { TypeormStore } from "connect-typeorm";
+import { TypeormStore } from 'connect-typeorm';
 import * as express from 'express';
-import * as ExpressSession from "express-session";
+import * as ExpressSession from 'express-session';
 import { inject, injectable } from 'inversify';
 import * as passport from 'passport';
 import * as facebook from 'passport-facebook';
 import * as github from 'passport-github2';
-import * as instagram from 'passport-instagram';
 import * as google from 'passport-google-oauth';
+import * as instagram from 'passport-instagram';
 import * as linkedin from 'passport-linkedin';
 import * as twitter from 'passport-twitter';
-import { getRepository } from "typeorm";
+import 'reflect-metadata';
+import { getRepository } from 'typeorm';
 
-import { Session } from "../db/entities";
+import { Session } from '../db/entities';
 import { environment } from '../environments/environment';
-import { IUserService } from '../services';
-import { IService } from './service';
-
 import SERVICETYPES from '../services/service.types';
 
-import 'reflect-metadata';
+import { IService } from './service';
+import { IUserService } from './user.service';
+
 export interface IProvider {
   id: string;
-  name: string
+  name: string;
 }
 
 export interface IAuthorizationService extends IService {
@@ -34,24 +34,31 @@ export class AuthorizationService implements IAuthorizationService {
   // fields
   private providers = new Array<IProvider>();
 
+  // constructor
+  public constructor(
+    @inject(SERVICETYPES.UserService) private userService: IUserService) { }
+
   // interface members
   public async initialize(app: express.Application): Promise<any> {
     const sessionRepository = getRepository(Session);
-    app.use(ExpressSession({
+    app.use(ExpressSession(
+      {
+       cookie: { secure: true, domain: this.getSchnackDomain() },
         resave: false,
         saveUninitialized: true,
         secret: 'authConfig.secret',
-        cookie: { secure: true, domain: this.getSchnackDomain() },
-        store: new TypeormStore({
-          cleanupLimit: 2,
-          limitSubquery: false, // If using MariaDB.
-          ttl: 86400
-        }).connect(sessionRepository),
-    }));
+        store: new TypeormStore(
+          {
+            cleanupLimit: 2,
+            limitSubquery: false, // If using MariaDB.
+            ttl: 86400
+          }
+        ).connect(sessionRepository)
+     }
+    ));
 
     this.initializePassport(app);
 
-    // this.providers.push({ id: 'mastodon', name: 'Mastodon' });
     return Promise.resolve(this.providers);
   }
 
@@ -59,16 +66,13 @@ export class AuthorizationService implements IAuthorizationService {
     return this.providers;
   }
 
-  // constructor
-  public constructor(
-    @inject(SERVICETYPES.UserService) private userService: IUserService) { }
-
   // private methods
   private getSchnackDomain(): string {
     const schnackHostName = environment.schnackHostName;
 
-    if (schnackHostName === 'localhost')
+    if (schnackHostName === 'localhost') {
       return schnackHostName;
+    }
 
     try {
       return schnackHostName
@@ -106,29 +110,26 @@ export class AuthorizationService implements IAuthorizationService {
             user.id,
             user.displayName,
             user.username || user.displayName,
-            user.profileUrl || '',
+            user.profileUrl || ''
           )
           .then(created => {
             this.userService
               .findUser(user.provider, user.id)
-              .then(row => {
-                if (row) {
-                  return done(null, row); // welcome new user
+              .then(newRow => {
+                if (newRow) {
+                  return done(null, newRow); // welcome new user
                 }
                 console.error('no user found after insert');
               })
-              .catch(err => { return console.error('could not find user', err); });
+              .catch(err => console.error('could not find user', err));
             })
-          .catch(err => { return console.error('could not create user', err); });
+          .catch(err => console.error('could not create user', err));
         })
-        .catch(err => { return console.error('could not find user', err); });
+        .catch(err => console.error('could not find user', err));
     });
 
     passport.deserializeUser((user: any, done: any) => {
-      done(null, {
-        provider: user.provider,
-        id: user.provider_id
-      });
+      done(null, { id: user.provider_id, provider: user.provider });
     });
 
     if (environment.oauthTwitter) {
@@ -163,9 +164,9 @@ export class AuthorizationService implements IAuthorizationService {
     passport.use(
       new twitter.Strategy(
         {
+          callbackURL: this.buildCallBackUrl('twitter'),
           consumerKey: environment.oauthTwitterConsumerKey,
-          consumerSecret: environment.oauthTwitterConsumerSecret,
-          callbackURL: this.buildCallBackUrl('twitter')
+          consumerSecret: environment.oauthTwitterConsumerSecret
         },
         (token, tokenSecret, profile, done) => { done(null, profile); }
       )
@@ -185,9 +186,9 @@ export class AuthorizationService implements IAuthorizationService {
     passport.use(
       new github.Strategy(
         {
+          callbackURL: this.buildCallBackUrl('github'),
           clientID: environment.oauthGitHubClientId,
-          clientSecret: environment.oauthGitHubClientSecret,
-          callbackURL: this.buildCallBackUrl('github')
+          clientSecret: environment.oauthGitHubClientSecret
         },
         (accessToken, refreshToken, profile, done) => { done(null, profile); }
       )
@@ -207,9 +208,9 @@ export class AuthorizationService implements IAuthorizationService {
     passport.use(
       new google.Strategy(
         {
+          callbackURL: this.buildCallBackUrl('google'),
           clientID: environment.oauthGoogleClientId,
-          clientSecret: environment.oauthGoogleClientSecret,
-          callbackURL: this.buildCallBackUrl('google')
+          clientSecret: environment.oauthGoogleClientSecret
         },
         (accessToken, refreshToken, profile, done) => { done(null, profile); }
       )
@@ -234,9 +235,9 @@ export class AuthorizationService implements IAuthorizationService {
     passport.use(
       new facebook.Strategy(
         {
+          callbackURL: this.buildCallBackUrl('facebook'),
           clientID: environment.oauthFacebookClientId,
-          clientSecret: environment.oauthFacebookClientSecret,
-          callbackURL: this.buildCallBackUrl('facebook')
+          clientSecret: environment.oauthFacebookClientSecret
         },
         (accessToken, refreshToken, profile, done) => { done(null, profile); }
       )
@@ -256,9 +257,9 @@ export class AuthorizationService implements IAuthorizationService {
     passport.use(
       new instagram.Strategy(
         {
+          callbackURL: this.buildCallBackUrl('instagram'),
           clientID: environment.oauthInstagramClientId,
-          clientSecret: environment.oauthInstagramClientSecret,
-          callbackURL: this.buildCallBackUrl('instagram')
+          clientSecret: environment.oauthInstagramClientSecret
         },
         (accessToken, refreshToken, profile, done) => { done(null, profile); }
       )
@@ -278,9 +279,9 @@ export class AuthorizationService implements IAuthorizationService {
     passport.use(
       new linkedin.Strategy(
         {
+          callbackURL: this.buildCallBackUrl('instagram'),
           clientID: environment.oauthLinkedInClientId,
-          clientSecret: environment.oauthLinkedInClientSecret,
-          callbackURL: this.buildCallBackUrl('instagram')
+          clientSecret: environment.oauthLinkedInClientSecret
         },
         (accessToken, refreshToken, profile, done) => { done(null, profile); }
       )
