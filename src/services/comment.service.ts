@@ -7,6 +7,7 @@ import { Comment, User } from '../db/entities';
 import { IService } from './service';
 
 export interface ICommentService extends IService {
+  createComment(user: User, replyTo: number, slug: string, comment: string): Promise<Comment>;
   getCommentsBySlug(slug: string, userId: number): Promise<Array<Comment>>;
 }
 
@@ -14,8 +15,17 @@ export interface ICommentService extends IService {
 export class CommentService implements ICommentService {
 
   // interface members
-  public async initialize(app: Application): Promise<any> {
-    return Promise.resolve(true);
+  public async createComment(user: User, replyTo: number, slug: string, comment: string): Promise<Comment> {
+    const commentRepository = getRepository(Comment);
+    const newComment = await commentRepository.create(
+      {
+        comment,
+        reply_to: replyTo,
+        slug,
+        user
+      }
+    );
+    return commentRepository.save(newComment);
   }
 
   public async getCommentsBySlug(slug: string, userId: number): Promise<Array<Comment>> {
@@ -32,17 +42,6 @@ export class CommentService implements ICommentService {
     const commentRepository = getRepository(Comment);
     return commentRepository.createQueryBuilder('comment')
     .leftJoinAndSelect('comment.user', 'user')
-    .select('comment.id', 'id')
-    .addSelect('user.id', 'user_id')
-    .addSelect('user.name', 'name')
-    .addSelect('user.display_name', 'display_name')
-    .addSelect('user.url', 'user_url')
-    .addSelect('comment.created', 'created_at')
-    .addSelect('comment.comment', 'comment')
-    .addSelect('comment.approved', 'approved')
-    .addSelect('user.trusted', 'trusted')
-    .addSelect('user.provider', 'provider')
-    .addSelect('comment.reply_to', 'reply_to')
     .where('comment.slug = :slug', { slug })
     .andWhere(new Brackets(qb0 =>
       qb0.where(
@@ -59,17 +58,10 @@ export class CommentService implements ICommentService {
         .orWhere('user.id = :userId', { userId })
       )
     )
-    .printSql()
     .getMany();
+  }
 
-    // console.log(sql);
-    //
-    //
-    // return commentRepository.find({
-    //
-    //   relations: ["user"],
-    //   where: { slug: slug },
-    //   order: { created: "DESC" }
-    // });
+  public async initialize(app: Application): Promise<any> {
+    return Promise.resolve(true);
   }
 }

@@ -13,6 +13,7 @@ import { IUserController, UserController } from './controllers';
 import { IAuthorizationService, AuthorizationService } from './services';
 import { ICommentService, CommentService } from './services';
 import { IDatabaseService, DatabaseService } from './services';
+import { IHelperService, HelperService } from './services';
 import { IRouteService, RouteService } from './services';
 import { IUserService, UserService } from './services';
 /* tslint:enable ordered-imports */
@@ -28,7 +29,8 @@ container.bind<IUserController>(CONTROLLERTYPES.UserController).to(UserControlle
 container.bind<IAuthorizationService>(SERVICETYPES.AuthorizationService).to(AuthorizationService).inSingletonScope();
 container.bind<ICommentService>(SERVICETYPES.CommentService).to(CommentService);
 container.bind<IDatabaseService>(SERVICETYPES.DatabaseService).to(DatabaseService).inSingletonScope();
-container.bind<IRouteService>(SERVICETYPES.RouteService).to(RouteService);
+container.bind<IHelperService>(SERVICETYPES.HelperService).to(HelperService).inSingletonScope();
+container.bind<IRouteService>(SERVICETYPES.RouteService).to(RouteService).inSingletonScope();
 container.bind<IUserService>(SERVICETYPES.UserService).to(UserService);
 
 export default container;

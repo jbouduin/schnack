@@ -22,13 +22,13 @@ export class User {
   @Column('nvarchar', { length: 128, nullable: false })
   public provider_id: string;
 
-  @Column()
+  @Column({ default: false })
   public administrator: boolean;
 
-  @Column()
+  @Column({ default: false })
   public blocked: boolean;
 
-  @Column()
+  @Column({ default: false })
   public trusted: boolean;
 
   @Column('nvarchar', { length: 255, nullable: true })

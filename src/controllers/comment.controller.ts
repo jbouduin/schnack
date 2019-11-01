@@ -34,21 +34,40 @@ export class CommentController implements ICommentController {
 
   public getComments(request: Request, response: Response): void {
     const slug = request.params.slug;
+
     this.commentService.getCommentsBySlug(slug, 1).then(comments =>
       response.send(
         {
-          auth: this.authorizationService.getProviders(),
+          auth: request.session.passport.user ?
+            null :
+            this.authorizationService.getProviders(),
           comments,
           slug,
-          user: null
+          user: request.session.passport.user
         }
       )
     );
   }
 
   public postComment(request: Request, response: Response): void {
-    const slug = request.params.slug;
-    console.log(`in postComment ${slug}`);
-    response.sendStatus(500);
+    if (!request.isAuthenticated()) {
+      response.sendStatus(401);
+    }
+    // console.log('posting');
+    // console.log(request.params);
+    // console.log(request.body);
+
+    this.commentService
+      .createComment(
+        request.session.passport.user,
+        request.body.reply_to,
+        request.params.slug,
+        request.body.comment
+      )
+      .then(result => response.send({ status: 'ok', id: result.id }))
+      .catch(err => {
+        console.log(err);
+        response.sendStatus(500);
+      });
   }
 }

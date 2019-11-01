@@ -1,23 +1,36 @@
 import * as bodyParser from 'body-parser';
+import { TypeormStore } from 'connect-typeorm';
 import * as express from 'express';
+import * as ExpressSession from 'express-session';
+import { getRepository } from 'typeorm';
+
+import { Session } from './db/entities';
+import { environment } from './environments/environment';
 
 import container from './inversify.config';
-import { IAuthorizationService, IDatabaseService, IRouteService, IUserService } from './services';
+import {
+  IAuthorizationService,
+  IDatabaseService,
+  IHelperService,
+  IRouteService,
+  IUserService } from './services';
 import SERVICETYPES from './services/service.types';
 
 class App {
 
+  private helperService: IHelperService;
   public app: express.Application;
 
   public constructor() {
     this.app = express();
-    this.config();
-    container.get<IRouteService>(SERVICETYPES.RouteService).initialize(this.app);
+    this.helperService = container.get<IHelperService>(SERVICETYPES.HelperService)
     container.get<IDatabaseService>(SERVICETYPES.DatabaseService)
       .initialize(this.app)
       .then(db => {
+        this.config();
         container.get<IUserService>(SERVICETYPES.UserService).initialize(this.app);
         container.get<IAuthorizationService>(SERVICETYPES.AuthorizationService).initialize(this.app);
+        container.get<IRouteService>(SERVICETYPES.RouteService).initialize(this.app);
       });
   }
 
@@ -28,6 +41,26 @@ class App {
     this.app.use(bodyParser.json());
     // support application/x-www-form-urlencoded post data
     this.app.use(bodyParser.urlencoded({ extended: false }));
+    //this.app.use(express.cookieParser());
+    const sessionRepository = getRepository(Session);
+    this.app.use(ExpressSession(
+      {
+        cookie: {
+          secure: environment.schnackProtocol === 'https',
+          domain: this.helperService.getSchnackDomain() },
+        name: 'schnackie',
+        resave: true,
+        saveUninitialized: false,
+        secret: 'authConfig.secret',
+        store: new TypeormStore(
+          {
+            cleanupLimit: 2,
+            limitSubquery: false, // If using MariaDB.
+            ttl: 86400
+          }
+        ).connect(sessionRepository)
+     }
+    ));
   }
 }
 

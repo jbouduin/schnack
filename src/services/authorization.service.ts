@@ -1,6 +1,4 @@
-import { TypeormStore } from 'connect-typeorm';
 import * as express from 'express';
-import * as ExpressSession from 'express-session';
 import { inject, injectable } from 'inversify';
 import * as passport from 'passport';
 import * as facebook from 'passport-facebook';
@@ -8,15 +6,16 @@ import * as github from 'passport-github2';
 import * as google from 'passport-google-oauth';
 import * as instagram from 'passport-instagram';
 import * as linkedin from 'passport-linkedin';
+import * as local from 'passport-local';
 import * as twitter from 'passport-twitter';
 import 'reflect-metadata';
-import { getRepository } from 'typeorm';
 
-import { Session } from '../db/entities';
 import { environment } from '../environments/environment';
 import SERVICETYPES from '../services/service.types';
+import container from '../inversify.config';
 
 import { IService } from './service';
+import { IHelperService} from './helper.service';
 import { IUserService } from './user.service';
 
 export interface IProvider {
@@ -36,29 +35,12 @@ export class AuthorizationService implements IAuthorizationService {
 
   // constructor
   public constructor(
+    @inject(SERVICETYPES.HelperService) private helperService: IHelperService,
     @inject(SERVICETYPES.UserService) private userService: IUserService) { }
 
   // interface members
   public async initialize(app: express.Application): Promise<any> {
-    const sessionRepository = getRepository(Session);
-    app.use(ExpressSession(
-      {
-       cookie: { secure: true, domain: this.getSchnackDomain() },
-        resave: false,
-        saveUninitialized: true,
-        secret: 'authConfig.secret',
-        store: new TypeormStore(
-          {
-            cleanupLimit: 2,
-            limitSubquery: false, // If using MariaDB.
-            ttl: 86400
-          }
-        ).connect(sessionRepository)
-     }
-    ));
-
     this.initializePassport(app);
-
     return Promise.resolve(this.providers);
   }
 
@@ -67,26 +49,6 @@ export class AuthorizationService implements IAuthorizationService {
   }
 
   // private methods
-  private getSchnackDomain(): string {
-    const schnackHostName = environment.schnackHostName;
-
-    if (schnackHostName === 'localhost') {
-      return schnackHostName;
-    }
-
-    try {
-      return schnackHostName
-        .split('.')
-        .slice(1)
-        .join('.');
-    } catch (error) {
-      console.error(
-        `The schnackHostName value "${schnackHostName}" doesn't appear to be a valid hostname`
-      );
-      process.exit(-1);
-    }
-  }
-
   private buildCallBackUrl(authorizer: string) {
     return `${environment.schnackProtocol}://${environment.schnackHostName}/auth/${authorizer}/callback`;
   }
@@ -137,6 +99,18 @@ export class AuthorizationService implements IAuthorizationService {
       reply.send({ status: 'ok' });
     });
 
+    router.get('/success', (request, reply) => {
+        const schnackDomain = this.helperService.getSchnackDomain();
+        reply.send(`<script>
+            document.domain = '${schnackDomain}';
+            window.opener.__schnack_wait_for_oauth();
+        </script>`);
+    });
+
+    if (environment.allowAnonymous) {
+      this.initializeAnonymus(router);
+    }
+
     if (environment.oauthTwitter) {
       this.initializeTwitter(router);
     }
@@ -164,7 +138,26 @@ export class AuthorizationService implements IAuthorizationService {
     app.use('/auth', router);
   }
 
-  private initializeTwitter(router: express.Router) {
+  private initializeAnonymus(router): void {
+    this.providers.push({ id: 'anonymous', name: 'Post anonymous' });
+    passport.use(new local.Strategy(
+        function(user, password, done) {
+          return done(null, { id: 'Anonymous', provider: 'local' })
+        }
+      )
+    );
+
+    router.post(
+      '/anonymous',
+      passport.authenticate('local', { session: true}),
+      (request, reply) => {
+        reply.redirect('/auth/success');
+
+      }
+    );
+  }
+
+  private initializeTwitter(router: express.Router): void {
     this.providers.push({ id: 'twitter', name: 'Twitter' });
     passport.use(
       new twitter.Strategy(
@@ -182,11 +175,11 @@ export class AuthorizationService implements IAuthorizationService {
     router.get(
       '/twitter/callback',
       passport.authenticate('twitter', { failureRedirect: '/login' }),
-      (request, reply) => { reply.redirect('/success'); }
+      (request, reply) => { reply.redirect('/auth/success'); }
     );
   }
 
-  private initializeGitHub(router: express.Router) {
+  private initializeGitHub(router: express.Router): void {
     this.providers.push({ id: 'github', name: 'Github' });
     passport.use(
       new github.Strategy(
@@ -208,7 +201,7 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  private initializeGoogle(router: express.Router) {
+  private initializeGoogle(router: express.Router): void {
     this.providers.push({ id: 'google', name: 'Google' });
     passport.use(
       new google.Strategy(
@@ -235,7 +228,7 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  private initializeFacebook(router: express.Router) {
+  private initializeFacebook(router: express.Router): void {
     this.providers.push({ id: 'facebook', name: 'Facebook' });
     passport.use(
       new facebook.Strategy(
@@ -257,7 +250,7 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  private initializeInstagram(router: express.Router) {
+  private initializeInstagram(router: express.Router): void {
     this.providers.push({ id: 'instagram', name: 'Instagram' });
     passport.use(
       new instagram.Strategy(
@@ -279,7 +272,7 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  private initializeLinkedIn(router: express.Router) {
+  private initializeLinkedIn(router: express.Router): void {
     this.providers.push({ id: 'linkedin', name: 'LinkedIn' });
     passport.use(
       new linkedin.Strategy(

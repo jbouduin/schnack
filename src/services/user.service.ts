@@ -4,6 +4,8 @@ import 'reflect-metadata';
 import { getRepository } from 'typeorm';
 
 import { Comment, User } from '../db/entities';
+import { environment } from '../environments/environment';
+
 import { IService } from './service';
 
 export interface IUserService extends IService {
@@ -32,19 +34,62 @@ export class UserService implements IUserService {
 
   public async initialize(app: Application): Promise<any> {
     const repository = getRepository(User);
-    const existing = await repository.find({ where: { administrator: true } });
-    if (existing.length === 0) {
-      const newUser = new User();
-      newUser.name = 'Administrator';
-      newUser.display_name = 'Administrator';
-      newUser.provider = '';
-      newUser.provider_id = '';
-      newUser.administrator = true;
-      newUser.blocked = false;
-      newUser.trusted = true;
-      return repository.save(newUser);
+    const searches = new Array<Promise<number>>();
+
+    searches.push(repository.count({ where: { administrator: true } }));
+    if (environment.allowAnonymous) {
+      searches.push(
+        repository.count(
+          {
+            where: { provider: 'local', provider_id: 'Anonymous' }
+          }
+        )
+      );
     }
-    return Promise.resolve(true);
+
+    return Promise.all(searches)
+      .then((counts: Array<number>) => {
+        const newUsers = new Array<User>();
+        if (counts[0] === 0) {
+          console.log('creating an administrator');
+          newUsers.push(repository.create(
+            {
+              name: 'Administrator',
+              display_name: 'Administrator',
+              provider: 'local',
+              provider_id: 'Administrator',
+              administrator: true,
+              blocked: false,
+              trusted: true
+            }
+          ));
+        } else {
+          console.log('found an administrator');
+        }
+        if (environment.allowAnonymous) {
+          if (counts[1] === 0) {
+            newUsers.push(repository.create(
+              {
+                name: 'Anonymous',
+                display_name: 'Anonymous user',
+                provider: 'local',
+                provider_id: 'Anonymous',
+                administrator: false,
+                blocked: false,
+                trusted: true
+              }
+            ));
+            console.log('creating an anonymous user');
+          } else {
+            console.log('found an anonymous user');
+          }
+        } else {
+          console.log('no anonymous user needed');
+        }
+        if (newUsers.length > 0) {
+          repository.save(newUsers);
+        }
+      });
   }
 
   public async createUser(

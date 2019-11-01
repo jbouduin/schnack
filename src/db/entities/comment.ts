@@ -13,7 +13,7 @@ export class Comment {
   @ManyToOne(type => User, user => user.comments, { nullable: false })
   public user: User;
 
-  @Column()
+  @Column({ nullable: true })
   public reply_to: number;
 
   @Column('nvarchar', { length: 128, nullable: false })
@@ -22,10 +22,10 @@ export class Comment {
   @Column('nvarchar', { length: 4096, nullable: false })
   public comment: string;
 
-  @Column()
+  @Column({ default: false })
   public rejected: boolean;
 
-  @Column()
+  @Column({ default: false })
   public approved: boolean;
 
   @CreateDateColumn()
