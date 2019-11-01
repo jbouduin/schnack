@@ -54,12 +54,12 @@ export class UserService implements IUserService {
           console.log('creating an administrator');
           newUsers.push(repository.create(
             {
-              name: 'Administrator',
-              display_name: 'Administrator',
-              provider: 'local',
-              provider_id: 'Administrator',
               administrator: true,
               blocked: false,
+              display_name: 'Administrator',
+              name: 'Administrator',
+              provider: 'local',
+              provider_id: 'Administrator',
               trusted: true
             }
           ));
@@ -70,12 +70,12 @@ export class UserService implements IUserService {
           if (counts[1] === 0) {
             newUsers.push(repository.create(
               {
-                name: 'Anonymous',
-                display_name: 'Anonymous user',
-                provider: 'local',
-                provider_id: 'Anonymous',
                 administrator: false,
                 blocked: false,
+                display_name: 'Anonymous user',
+                name: 'Anonymous',
+                provider: 'local',
+                provider_id: 'Anonymous',
                 trusted: true
               }
             ));

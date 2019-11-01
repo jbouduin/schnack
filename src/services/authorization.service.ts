@@ -11,11 +11,11 @@ import * as twitter from 'passport-twitter';
 import 'reflect-metadata';
 
 import { environment } from '../environments/environment';
-import SERVICETYPES from '../services/service.types';
 import container from '../inversify.config';
+import SERVICETYPES from '../services/service.types';
 
+import { IConfigurationService} from './configuration.service';
 import { IService } from './service';
-import { IHelperService} from './helper.service';
 import { IUserService } from './user.service';
 
 export interface IProvider {
@@ -35,7 +35,7 @@ export class AuthorizationService implements IAuthorizationService {
 
   // constructor
   public constructor(
-    @inject(SERVICETYPES.HelperService) private helperService: IHelperService,
+    @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService,
     @inject(SERVICETYPES.UserService) private userService: IUserService) { }
 
   // interface members
@@ -100,7 +100,7 @@ export class AuthorizationService implements IAuthorizationService {
     });
 
     router.get('/success', (request, reply) => {
-        const schnackDomain = this.helperService.getSchnackDomain();
+        const schnackDomain = this.configurationService.getSchnackDomain();
         reply.send(`<script>
             document.domain = '${schnackDomain}';
             window.opener.__schnack_wait_for_oauth();
@@ -141,8 +141,8 @@ export class AuthorizationService implements IAuthorizationService {
   private initializeAnonymus(router): void {
     this.providers.push({ id: 'anonymous', name: 'Post anonymous' });
     passport.use(new local.Strategy(
-        function(user, password, done) {
-          return done(null, { id: 'Anonymous', provider: 'local' })
+        (user, password, done) => {
+          return done(null, { id: 'Anonymous', provider: 'local' });
         }
       )
     );

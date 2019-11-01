@@ -1,8 +1,8 @@
 const SERVICETYPES = {
   AuthorizationService: Symbol('AuthorizationService'),
   CommentService: Symbol('CommentService'),
+  ConfigurationService: Symbol('ConfigurationService'),
   DatabaseService: Symbol('DatabaseService'),
-  HelperService: Symbol('HelperService'),
   RouteService: Symbol('RouteService'),
   UserService: Symbol('UserService')
 };

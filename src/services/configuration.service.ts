@@ -5,12 +5,12 @@ import 'reflect-metadata';
 import { environment } from '../environments/environment';
 import { IService } from './service';
 
-export interface IHelperService extends IService {
-  getSchnackDomain(): string
+export interface IConfigurationService extends IService {
+  getSchnackDomain(): string;
 }
 
 @injectable()
-export class HelperService implements IHelperService {
+export class ConfigurationService implements IConfigurationService {
 
   public getSchnackDomain(): string {
     const schnackHostName = environment.schnackHostName;
