@@ -35,6 +35,14 @@ export class CommentController implements ICommentController {
   public getComments(request: Request, response: Response): void {
     const slug = request.params.slug;
 
+    // TODO legacy: admin has a separate query, viewing more
+    // TODO legacy:
+    // comments.forEach(c => {
+    //     const m = moment.utc(c.created_at);
+    //     c.created_at_s = date_format ? m.format(date_format) : m.fromNow();
+    //     c.comment = marked(c.comment.trim());
+    //     c.author_url = auth.getAuthorUrl(c);
+    // });
     this.commentService.getCommentsBySlug(slug, 1).then(comments =>
       response.send(
         {
@@ -53,9 +61,7 @@ export class CommentController implements ICommentController {
     if (!request.isAuthenticated()) {
       response.sendStatus(401);
     }
-    // console.log('posting');
-    // console.log(request.params);
-    // console.log(request.body);
+    // TODO Legacy: checkValidComment(db, slug, user.id, comment, replyTo, err => {
 
     this.commentService
       .createComment(
