@@ -7,7 +7,7 @@ import SERVICETYPES from './services/service.types';
 // controllers
 import { ICommentController, CommentController } from './controllers';
 import { IHomeController, HomeController } from './controllers';
-
+import { IUserController, UserController } from './controllers';
 // services
 
 import { IAuthorizationService, AuthorizationService } from './services';
@@ -22,6 +22,7 @@ const container = new Container();
 // controllers
 container.bind<ICommentController>(CONTROLLERTYPES.CommentController).to(CommentController);
 container.bind<IHomeController>(CONTROLLERTYPES.HomeController).to(HomeController);
+container.bind<IUserController>(CONTROLLERTYPES.UserController).to(UserController);
 
 // services
 container.bind<IAuthorizationService>(SERVICETYPES.AuthorizationService).to(AuthorizationService).inSingletonScope();

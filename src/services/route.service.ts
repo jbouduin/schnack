@@ -2,8 +2,7 @@ import * as express from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 
-import { IHomeController } from '../controllers';
-import { ICommentController } from '../controllers';
+import { ICommentController, IHomeController, IUserController } from '../controllers';
 import CONTROLLERTYPES from '../controllers/controller.types';
 
 import { IService } from './service';
@@ -16,7 +15,8 @@ export class RouteService implements IRouteService {
   // constructor
   public constructor(
     @inject(CONTROLLERTYPES.CommentController) private commentController: ICommentController,
-    @inject(CONTROLLERTYPES.HomeController) private homeController: IHomeController
+    @inject(CONTROLLERTYPES.HomeController) private homeController: IHomeController,
+    @inject(CONTROLLERTYPES.UserController) private userController: IUserController
   ) { }
 
   // interface members
@@ -52,9 +52,19 @@ export class RouteService implements IRouteService {
           this.commentController.rejectComment(request, response);
       });
 
-    // TODO post /user/:id/block
+    router.post(
+      '/user/:id/block',
+      (request: express.Request, response: express.Response) => {
+          this.userController.blockUser(request, response);
+      });
+
+    router.post(
+      '/user/:id/trust',
+      (request: express.Request, response: express.Response) => {
+          this.userController.trustUser(request, response);
+      });
+
     // TODO post /user/:id/unblock
-    // TODO post /user/:id/trust
     // TODO post /user/:id/untrust
     // TODO post /user/:id/grantadmin
     // TODO post /user/:id/revokeadmin

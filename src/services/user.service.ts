@@ -7,6 +7,7 @@ import { Comment, User } from '../db/entities';
 import { IService } from './service';
 
 export interface IUserService extends IService {
+  blockUser(userId: number): Promise<User>;
   createUser(
     provider: string,
     providerId: string,
@@ -14,12 +15,21 @@ export interface IUserService extends IService {
     name: string,
     url: string): Promise<User>;
   findUser(provider: string, providerId: string): Promise<User>;
+  trustUser(userId: number): Promise<User>;
 }
 
 @injectable()
 export class UserService implements IUserService {
 
   // interface members
+  public async blockUser(userId: number): Promise<User> {
+    const userRepository = getRepository(User);
+    const user = await userRepository.findOne(userId);
+    user.trusted = false;
+    user.blocked = true;
+    return userRepository.save(user);
+  }
+
   public async initialize(app: Application): Promise<any> {
     const repository = getRepository(User);
     const existing = await repository.find({ where: { administrator: true } });
@@ -35,18 +45,6 @@ export class UserService implements IUserService {
       return repository.save(newUser);
     }
     return Promise.resolve(true);
-  }
-
-  public async findUser(provider: string, providerId: string): Promise<User> {
-    // SELECT id, name, display_name, provider, provider_id,
-    //      trusted, blocked FROM user
-    //    WHERE provider = ? AND provider_id = ?
-    const userRepository = getRepository(User);
-    return userRepository.createQueryBuilder('user')
-      .select()
-      .where('user.provider = :provider', { provider })
-      .andWhere('user.provider_id = :providerId', { providerId })
-      .getOne();
   }
 
   public async createUser(
@@ -67,5 +65,24 @@ export class UserService implements IUserService {
     newUser.blocked = false;
     newUser.administrator = false;
     return repository.save(newUser);
+  }
+
+  public async findUser(provider: string, providerId: string): Promise<User> {
+    // SELECT id, name, display_name, provider, provider_id,
+    //      trusted, blocked FROM user
+    //    WHERE provider = ? AND provider_id = ?
+    return getRepository(User).createQueryBuilder('user')
+      .select()
+      .where('user.provider = :provider', { provider })
+      .andWhere('user.provider_id = :providerId', { providerId })
+      .getOne();
+  }
+
+  public async trustUser(userId: number): Promise<User> {
+    const userRepository = getRepository(User);
+    const user = await userRepository.findOne(userId);
+    user.trusted = true;
+    user.blocked = false;
+    return userRepository.save(user);
   }
 }
