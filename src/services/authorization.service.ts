@@ -1,8 +1,13 @@
 import { TypeormStore } from "connect-typeorm";
-import { Application } from 'express';
+import * as express from 'express';
 import * as ExpressSession from "express-session";
 import { inject, injectable } from 'inversify';
 import * as passport from 'passport';
+import * as facebook from 'passport-facebook';
+import * as github from 'passport-github2';
+import * as instagram from 'passport-instagram';
+import * as google from 'passport-google-oauth';
+import * as linkedin from 'passport-linkedin';
 import * as twitter from 'passport-twitter';
 import { getRepository } from "typeorm";
 
@@ -30,11 +35,11 @@ export class AuthorizationService implements IAuthorizationService {
   private providers = new Array<IProvider>();
 
   // interface members
-  public async initialize(app: Application): Promise<any> {
+  public async initialize(app: express.Application): Promise<any> {
     const sessionRepository = getRepository(Session);
     app.use(ExpressSession({
         resave: false,
-        saveUninitialized: false,
+        saveUninitialized: true,
         secret: 'authConfig.secret',
         cookie: { secure: true, domain: this.getSchnackDomain() },
         store: new TypeormStore({
@@ -45,7 +50,6 @@ export class AuthorizationService implements IAuthorizationService {
     }));
 
     this.initializePassport(app);
-
 
     // this.providers.push({ id: 'mastodon', name: 'Mastodon' });
     return Promise.resolve(this.providers);
@@ -79,10 +83,15 @@ export class AuthorizationService implements IAuthorizationService {
     }
   }
 
-  private initializePassport(app: Application) {
+  private buildCallBackUrl(authorizer: string) {
+    return `${environment.schnackProtocol}://${environment.schnackHostName}/auth/${authorizer}/callback`;
+  }
+
+  private initializePassport(app: express.Application) {
 
     app.use(passport.initialize());
     app.use(passport.session());
+    const router = express.Router();
 
     passport.serializeUser((user: any, done: any) => {
       this.userService
@@ -116,82 +125,173 @@ export class AuthorizationService implements IAuthorizationService {
     });
 
     passport.deserializeUser((user: any, done: any) => {
-        done(null, {
-            provider: user.provider,
-            id: user.provider_id
-        });
+      done(null, {
+        provider: user.provider,
+        id: user.provider_id
+      });
     });
 
     if (environment.oauthTwitter) {
-      this.initializeTwitter(app);
+      this.initializeTwitter(router);
     }
 
     if (environment.oauthGitHub) {
-      this.initializeGitHub(app);
+      this.initializeGitHub(router);
     }
 
     if (environment.oauthGoogle) {
-      this.initializeGoogle(app);
+      this.initializeGoogle(router);
     }
 
     if (environment.oauthFacebook) {
-      this.initializeFacebook(app);
+      this.initializeFacebook(router);
     }
 
     if (environment.oauthLinkedIn) {
-      this.initializeLinkedIn(app);
+      this.initializeLinkedIn(router);
     }
 
     if (environment.oauthInstagram) {
-      this.initializeInstagram(app);
+      this.initializeInstagram(router);
     }
+
+    app.use('/auth', router);
   }
 
-  private initializeTwitter(app: Application) {
+  private initializeTwitter(router: express.Router) {
     this.providers.push({ id: 'twitter', name: 'Twitter' });
     passport.use(
-        new twitter.Strategy(
-            {
-                consumerKey: environment.oauthTwitterConsumerKey,
-                consumerSecret: environment.oauthTwitterConsumerSecret,
-                callbackURL: `${environment.schnackProtocol}://${environment.schnackHostName}/auth/twitter/callback`
-            },
-            (token, tokenSecret, profile, done) => {
-                done(null, profile);
-            }
-        )
+      new twitter.Strategy(
+        {
+          consumerKey: environment.oauthTwitterConsumerKey,
+          consumerSecret: environment.oauthTwitterConsumerSecret,
+          callbackURL: this.buildCallBackUrl('twitter')
+        },
+        (token, tokenSecret, profile, done) => { done(null, profile); }
+      )
     );
 
-    app.get('/auth/twitter', passport.authenticate('twitter'));
+    router.get('/twitter', passport.authenticate('twitter'));
 
-    app.get(
-        '/auth/twitter/callback',
-        passport.authenticate('twitter', {
-            failureRedirect: '/login'
-        }),
-        (request, reply) => {
-            reply.redirect('/success');
-        }
+    router.get(
+      '/twitter/callback',
+      passport.authenticate('twitter', { failureRedirect: '/login' }),
+      (request, reply) => { reply.redirect('/success'); }
     );
   }
 
-  private initializeGitHub(app: Application) {
+  private initializeGitHub(router: express.Router) {
     this.providers.push({ id: 'github', name: 'Github' });
+    passport.use(
+      new github.Strategy(
+        {
+          clientID: environment.oauthGitHubClientId,
+          clientSecret: environment.oauthGitHubClientSecret,
+          callbackURL: this.buildCallBackUrl('github')
+        },
+        (accessToken, refreshToken, profile, done) => { done(null, profile); }
+      )
+    );
+
+    router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+    router.get(
+      '/github/callback',
+      passport.authenticate('github', { failureRedirect: '/login' }),
+      (request, reply) => { reply.redirect('/success'); }
+    );
   }
 
-  private initializeGoogle(app: Application) {
+  private initializeGoogle(router: express.Router) {
     this.providers.push({ id: 'google', name: 'Google' });
+    passport.use(
+      new google.Strategy(
+        {
+          clientID: environment.oauthGoogleClientId,
+          clientSecret: environment.oauthGoogleClientSecret,
+          callbackURL: this.buildCallBackUrl('google')
+        },
+        (accessToken, refreshToken, profile, done) => { done(null, profile); }
+      )
+    );
+
+    router.get(
+      '/google',
+      passport.authenticate('google', {
+        scope: ['https://www.googleapis.com/auth/plus.login']
+      })
+    );
+
+    router.get(
+        '/google/callback',
+        passport.authenticate('google', { failureRedirect: '/login' }),
+        (request, reply) => { reply.redirect('/success'); }
+    );
   }
 
-  private initializeFacebook(app: Application) {
+  private initializeFacebook(router: express.Router) {
     this.providers.push({ id: 'facebook', name: 'Facebook' });
+    passport.use(
+      new facebook.Strategy(
+        {
+          clientID: environment.oauthFacebookClientId,
+          clientSecret: environment.oauthFacebookClientSecret,
+          callbackURL: this.buildCallBackUrl('facebook')
+        },
+        (accessToken, refreshToken, profile, done) => { done(null, profile); }
+      )
+    );
+
+    router.get('/facebook', passport.authenticate('facebook'));
+
+    router.get(
+        '/facebook/callback',
+        passport.authenticate('facebook', { failureRedirect: '/login' }),
+        (request, reply) => { reply.redirect('/success'); }
+    );
   }
 
-  private initializeInstagram(app: Application) {
+  private initializeInstagram(router: express.Router) {
     this.providers.push({ id: 'instagram', name: 'Instagram' });
+    passport.use(
+      new instagram.Strategy(
+        {
+          clientID: environment.oauthInstagramClientId,
+          clientSecret: environment.oauthInstagramClientSecret,
+          callbackURL: this.buildCallBackUrl('instagram')
+        },
+        (accessToken, refreshToken, profile, done) => { done(null, profile); }
+      )
+    );
+
+    router.get('/instagram', passport.authenticate('instagram'));
+
+    router.get(
+        '/instagram/callback',
+        passport.authenticate('instagram', { failureRedirect: '/login' }),
+        (request, reply) => { reply.redirect('/success'); }
+    );
   }
 
-  private initializeLinkedIn(app: Application) {
+  private initializeLinkedIn(router: express.Router) {
     this.providers.push({ id: 'linkedin', name: 'LinkedIn' });
+    passport.use(
+      new linkedin.Strategy(
+        {
+          clientID: environment.oauthLinkedInClientId,
+          clientSecret: environment.oauthLinkedInClientSecret,
+          callbackURL: this.buildCallBackUrl('instagram')
+        },
+        (accessToken, refreshToken, profile, done) => { done(null, profile); }
+      )
+    );
+
+    router.get('/instagram', passport.authenticate('instagram'));
+
+    router.get(
+        '/instagram/callback',
+        passport.authenticate('instagram', { failureRedirect: '/login' }),
+        (request, reply) => { reply.redirect('/success'); }
+    );
   }
 }

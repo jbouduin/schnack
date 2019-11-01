@@ -1,4 +1,4 @@
-import { Application, Request, Response } from 'express';
+import * as express from 'express';
 import { injectable, inject } from 'inversify';
 import 'reflect-metadata';
 
@@ -16,35 +16,39 @@ export interface IRouteService extends IService {
 export class RouteService implements IRouteService {
 
   // interface members
-  public async initialize(app: Application): Promise<any> {
-
-    app.route('/hello')
-      .all((request: Request, response: Response) => {
+  public async initialize(app: express.Application): Promise<any> {
+    const router = express.Router();
+    router.all(
+      '/hello',
+      (request: express.Request, response: express.Response) => {
         this.homeController.helloWorld(request, response);
       });
 
-    app.route('/comments/:slug')
-      .get((request: Request, response: Response) => {
+    router.get(
+      '/comments/:slug',
+      (request: express.Request, response: express.Response) => {
         this.commentController.getComments(request, response);
-      })
-      .post((request: Request, response: Response) => {
+      });
+
+    router.post(
+      '/comments/:slug',
+      (request: express.Request, response: express.Response) => {
         this.commentController.postComment(request, response);
       });
 
-    app.route('/comment/:id/approve')
-      .post((request: Request, response: Response) => {
+    router.post(
+      '/comment/:id/approve',
+      (request: express.Request, response: express.Response) => {
         this.commentController.approveComment(request, response);
       });
 
-    app.route('/comment/:id/reject')
-      .post((request: Request, response: Response) => {
+    router.post(
+      '/comment/:id/reject',
+      (request: express.Request, response: express.Response) => {
           this.commentController.rejectComment(request, response);
       });
 
-    app.route('*')
-      .all((request: Request, response: Response) => {
-        response.sendStatus(404);
-      });
+    app.use(router);
 
     return Promise.resolve(true);
   }

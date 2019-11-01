@@ -15,7 +15,7 @@ const trustConfig = config.get('trust');
 const schnack_host = config.get('schnack_host');
 
 const providers = [];
-
+/*
 function init(app, db, domain) {
     app.use(
         session({
@@ -271,7 +271,7 @@ function init(app, db, domain) {
         );
     }
 }
-
+*/
 function getAuthorUrl(comment) {
     if (comment.user_url) return comment.user_url;
     switch (comment.provider) {

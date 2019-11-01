@@ -20,6 +20,6 @@ export const environment = {
   oauthLinkedInClientId: "xxxxx",
   oauthLinkedInClientSecret: "xxxxx",
   oauthInstagram: false,
-  oauthClientId: "xxxxx",
-  oauthClientSecret: "xxxxx"
+  oauthInstagramClientId: "xxxxx",
+  oauthInstagramClientSecret: "xxxxx"
 };
