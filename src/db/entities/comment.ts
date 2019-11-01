@@ -3,6 +3,8 @@ import { CreateDateColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
 
 import { User } from './user';
 
+// TODO until we find the time to change this
+/* tslint:disable variable-name */
 @Entity()
 export class Comment {
   @PrimaryGeneratedColumn()
