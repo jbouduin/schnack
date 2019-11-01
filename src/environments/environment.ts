@@ -1,4 +1,5 @@
 export const environment = {
+  allowAnonymous: true,
   production: false,
 
   schnackHostName: process.env.SCHNACK_HOST_NAME || 'localhost',

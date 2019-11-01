@@ -132,6 +132,11 @@ export class AuthorizationService implements IAuthorizationService {
       done(null, { id: user.provider_id, provider: user.provider });
     });
 
+    router.get('/signout', (request, reply) => {
+      delete request.session.passport;
+      reply.send({ status: 'ok' });
+    });
+
     if (environment.oauthTwitter) {
       this.initializeTwitter(router);
     }
