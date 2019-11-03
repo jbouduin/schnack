@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CreateDateColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
 
 import { Comment } from './comment';
@@ -6,6 +6,7 @@ import { Comment } from './comment';
 // TODO until we find the time to change this
 /* tslint:disable variable-name */
 @Entity()
+@Index(['provider', 'provider_id'], { unique: true })
 export class User {
   @PrimaryGeneratedColumn()
   public id: number;
