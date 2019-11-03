@@ -36,6 +36,4 @@ export class Comment {
 
   @VersionColumn()
   public version: number;
-
-  public created_at_s: string;
 }
