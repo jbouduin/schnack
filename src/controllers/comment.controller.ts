@@ -28,9 +28,26 @@ export class CommentController implements ICommentController {
 
   // interface members
   public approveComment(request: Request, response: Response): void  {
-    const commentId = request.params.id;
-    console.log(`in approveComment ${commentId}`);
-    response.sendStatus(500);
+    if (!request.isAuthenticated()) {
+      response.sendStatus(401);
+    } else {
+      if (!request.session.passport.user.administrator) {
+        response.sendStatus(403);
+      } else {
+        const commentId = Number(request.params.id);
+        if (isNaN(commentId)) {
+          response.sendStatus(400);
+        } else {
+          this.commentService
+            .approveComment(commentId)
+            .then(comment => response.send({ status: 'ok' }))
+            .catch(err => {
+              console.log(err);
+              response.sendStatus(500);
+            });
+        }
+      }
+    }
   }
 
   public getComments(request: Request, response: Response): void {
@@ -88,25 +105,43 @@ export class CommentController implements ICommentController {
   public postComment(request: Request, response: Response): void {
     if (!request.isAuthenticated()) {
       response.sendStatus(401);
+    } else {
+      // TODO Legacy: checkValidComment(db, slug, user.id, comment, replyTo, err => {
+      this.commentService
+        .createComment(
+          request.session.passport.user,
+          request.body.reply_to,
+          request.params.slug,
+          request.body.comment
+        )
+        .then(result => response.send({ status: 'ok', id: result.id }))
+        .catch(err => {
+          console.log(err);
+          response.sendStatus(500);
+        });
     }
-    // TODO Legacy: checkValidComment(db, slug, user.id, comment, replyTo, err => {
-    this.commentService
-      .createComment(
-        request.session.passport.user,
-        request.body.reply_to,
-        request.params.slug,
-        request.body.comment
-      )
-      .then(result => response.send({ status: 'ok', id: result.id }))
-      .catch(err => {
-        console.log(err);
-        response.sendStatus(500);
-      });
   }
 
   public rejectComment(request: Request, response: Response): void  {
-    const commentId = request.params.id;
-    console.log(`in rejectComment ${commentId}`);
-    response.sendStatus(500);
+    if (!request.isAuthenticated()) {
+      response.sendStatus(401);
+    } else {
+      if (!request.session.passport.user.administrator) {
+        response.sendStatus(403);
+      } else {
+        const commentId = Number(request.params.id);
+        if (isNaN(commentId)) {
+          response.sendStatus(400);
+        } else {
+          this.commentService
+            .rejectComment(commentId)
+            .then(comment => response.send({ status: 'ok' }))
+            .catch(err => {
+              console.log(err);
+              response.sendStatus(500);
+            });
+        }
+      }
+    }
   }
 }

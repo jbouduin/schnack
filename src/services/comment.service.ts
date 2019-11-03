@@ -7,14 +7,24 @@ import { Comment, User } from '../db/entities';
 import { IService } from './service';
 
 export interface ICommentService extends IService {
+  approveComment(commentId: number): Promise<Comment>;
   createComment(user: User, replyTo: number, slug: string, comment: string): Promise<Comment>;
   getCommentsBySlug(slug: string, userId: number, administrator: boolean): Promise<Array<Comment>>;
+  rejectComment(commentId: number): Promise<Comment>;
 }
 
 @injectable()
 export class CommentService implements ICommentService {
 
   // interface members
+  public async approveComment(commentId: number): Promise<Comment> {
+    const commentRepository = getRepository(Comment);
+    const comment = await commentRepository.findOne(commentId);
+    comment.approved = true;
+    comment.rejected = false;
+    return commentRepository.save(comment);
+  }
+
   public async createComment(user: User, replyTo: number, slug: string, comment: string): Promise<Comment> {
     const commentRepository = getRepository(Comment);
     const newComment = await commentRepository.create(
@@ -81,5 +91,13 @@ export class CommentService implements ICommentService {
 
   public async initialize(app: Application): Promise<any> {
     return Promise.resolve(true);
+  }
+
+  public async rejectComment(commentId: number): Promise<Comment> {
+    const commentRepository = getRepository(Comment);
+    const comment = await commentRepository.findOne(commentId);
+    comment.approved = false;
+    comment.rejected = true;
+    return commentRepository.save(comment);
   }
 }
