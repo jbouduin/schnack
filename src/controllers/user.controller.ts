@@ -20,30 +20,46 @@ export class UserController implements IUserController {
 
   // interface members
   public blockUser(request: Request, response: Response): void {
-    const userId = Number(request.params.id);
-    if (isNaN(userId)) {
-      response.sendStatus(400);
+    if (!request.isAuthenticated()) {
+      response.sendStatus(401);
     } else {
-      this.userService.blockUser(userId)
-        .then(user => response.send({ status: 'ok' }))
-        .catch(err => {
-          console.log(err);
-          response.sendStatus(500);
-        });
+      if (!request.session.passport.user.administrator) {
+        response.sendStatus(403);
+      } else {
+        const userId = Number(request.params.id);
+        if (isNaN(userId)) {
+          response.sendStatus(400);
+        } else {
+          this.userService.blockUser(userId)
+            .then(user => response.send({ status: 'ok' }))
+            .catch(err => {
+              console.log(err);
+              response.sendStatus(500);
+            });
+        }
+      }
     }
   }
 
   public trustUser(request: Request, response: Response): void {
-    const userId = Number(request.params.id);
-    if (isNaN(userId)) {
-      response.sendStatus(400);
+    if (!request.isAuthenticated()) {
+      response.sendStatus(401);
     } else {
-      this.userService.trustUser(userId)
-        .then(user => response.send({ status: 'ok' }))
-        .catch(err => {
-          console.log(err);
-          response.sendStatus(500);
-      });
+      if (!request.session.passport.user.administrator) {
+        response.sendStatus(403);
+      } else {
+        const userId = Number(request.params.id);
+        if (isNaN(userId)) {
+          response.sendStatus(400);
+        } else {
+          this.userService.trustUser(userId)
+            .then(user => response.send({ status: 'ok' }))
+            .catch(err => {
+              console.log(err);
+              response.sendStatus(500);
+            });
+        }
+      }
     }
   }
 }
