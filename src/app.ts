@@ -37,7 +37,7 @@ class App {
 
   private config(): void {
     this.app.use(express.static('build'));
-    this.app.use(express.static('test'));
+    // this.app.use(express.static('test'));
     this.app.use(cors(
       {
         credentials: true,
