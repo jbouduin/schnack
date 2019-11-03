@@ -43,15 +43,19 @@ export class CommentController implements ICommentController {
     //     c.comment = marked(c.comment.trim());
     //     c.author_url = auth.getAuthorUrl(c);
     // });
+    const user = request.session && request.session.passport ?
+      request.session.passport.user :
+      null;
+
     this.commentService.getCommentsBySlug(slug, 1).then(comments =>
       response.send(
         {
-          auth: request.session.passport.user ?
+          auth: user ?
             null :
             this.authorizationService.getProviders(),
           comments,
           slug,
-          user: request.session.passport.user
+          user
         }
       )
     );
@@ -62,7 +66,6 @@ export class CommentController implements ICommentController {
       response.sendStatus(401);
     }
     // TODO Legacy: checkValidComment(db, slug, user.id, comment, replyTo, err => {
-
     this.commentService
       .createComment(
         request.session.passport.user,

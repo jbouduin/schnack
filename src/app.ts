@@ -1,5 +1,6 @@
 import * as bodyParser from 'body-parser';
 import { TypeormStore } from 'connect-typeorm';
+import * as cors from 'cors';
 import * as express from 'express';
 import * as ExpressSession from 'express-session';
 import { getRepository } from 'typeorm';
@@ -37,6 +38,13 @@ class App {
   private config(): void {
     this.app.use(express.static('build'));
     this.app.use(express.static('test'));
+    this.app.use(cors(
+      {
+        credentials: true,
+        origin: true // TODO legacy had 'checkorigin'
+      })
+    );
+
     // support application/json type post data
     this.app.use(bodyParser.json());
     // support application/x-www-form-urlencoded post data
@@ -71,8 +79,6 @@ const cors = require('cors');
 const moment = require('moment');
 const RSS = require('rss');
 const marked = require('marked');
-
-
 
 const awaiting_moderation = [];
 
@@ -127,7 +133,4 @@ marked.setOptions({ sanitize: true });
         const { comment } = request.body;
         reply.send({ html: marked(comment.trim()) });
     });
-
-
-
 */

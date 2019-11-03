@@ -95,7 +95,7 @@ export class AuthorizationService implements IAuthorizationService {
     });
 
     router.get('/signout', (request, reply) => {
-      delete request.session.passport;
+      request.logout();
       reply.send({ status: 'ok' });
     });
 
@@ -151,8 +151,12 @@ export class AuthorizationService implements IAuthorizationService {
       '/anonymous',
       passport.authenticate('local', { session: true}),
       (request, reply) => {
+        const schnackDomain = this.configurationService.getSchnackDomain();
         reply.redirect('/auth/success');
-
+        // reply.send(`<script>
+        //     document.domain = '${schnackDomain}';
+        //     window.__schnack_wait_for_oauth();
+        // </script>`);
       }
     );
   }
