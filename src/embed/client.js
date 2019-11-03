@@ -40,7 +40,6 @@ export default class Schnack {
       data.comments_tpl = comments_tpl;
       data.partials = partials;
       $(target).innerHTML = schnack_tpl(data);
-      // console.log('data', data);
 
       const above = $(`${target} div.schnack-above`);
       const form = $(`${target} div.schnack-form`);

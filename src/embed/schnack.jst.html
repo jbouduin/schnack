@@ -31,9 +31,9 @@
   const comments = [];
   data.replies = {};
   data.comments.forEach((comment) => {
-    if (comment.reply_to) {
-      if (!data.replies[comment.reply_to]) data.replies[comment.reply_to] = [];
-      data.replies[comment.reply_to].push(comment);
+    if (comment.replyTo) {
+      if (!data.replies[comment.replyTo]) data.replies[comment.replyTo] = [];
+      data.replies[comment.replyTo].push(comment);
     } else {
         comments.push(comment);
     }

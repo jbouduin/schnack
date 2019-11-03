@@ -3,8 +3,9 @@ import { inject, injectable } from 'inversify';
 import * as marked from 'marked';
 import 'reflect-metadata';
 
-import { IAuthorizationService, ICommentService } from '../services';
+import { IAuthorizationService, IConfigurationService, ICommentService } from '../services';
 import SERVICETYPES from '../services/service.types';
+import { TrfComment, TrfUser } from '../transfer';
 
 export interface ICommentController {
   approveComment(request: Request, response: Response): void;
@@ -20,6 +21,7 @@ export class CommentController implements ICommentController {
   // constructor
   public constructor(
     @inject(SERVICETYPES.AuthorizationService) private authorizationService: IAuthorizationService,
+    @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService,
     @inject(SERVICETYPES.CommentService) private commentService: ICommentService) {
     marked.setOptions({ sanitize: true });
   }
@@ -34,31 +36,43 @@ export class CommentController implements ICommentController {
   public getComments(request: Request, response: Response): void {
     const slug = request.params.slug;
 
+    var trfUser: TrfUser = null;
     // TODO legacy: admin has a separate query, viewing more
-    // TODO legacy:
-    // comments.forEach(c => {
-    //     const m = moment.utc(c.created_at);
-    //     c.created_at_s = date_format ? m.format(date_format) : m.fromNow();
-    //     c.comment = marked(c.comment.trim());
-    //     c.author_url = auth.getAuthorUrl(c);
-    // });
-    const user = request.session && request.session.passport ?
-      request.session.passport.user :
-      null;
+    if (request.session && request.session.passport && request.session.passport.user)
+    {
+      trfUser = new TrfUser();
+      trfUser.name = request.session.passport.user.display_name || request.session.passport.user.name;
+      trfUser.administrator = request.session.passport.user.administrator;
+    }
 
     this.commentService.getCommentsBySlug(slug, 1).then(comments => {
-      comments.forEach(comment => {
-        comment.comment = marked(comment.comment.trim());
+      const trfComments = comments.map(comment => {
+        const trfComment = new TrfComment();
+        trfComment.id = comment.id;
+        trfComment.replyTo = comment.reply_to;
+        trfComment.approved = comment.approved;
+        trfComment.author = comment.user.display_name || comment.user.name;
+        trfComment.authorUrl = comment.user.url;
+        trfComment.comment = marked(comment.comment.trim());
+        trfComment.created = this.configurationService.formatDate(comment.created);
+        if (trfUser && trfUser.administrator) {
+          trfComment.authorId = comment.user.id;
+          trfComment.authorTrusted = comment.user.trusted;
+        } else {
+          trfComment.authorId = null;
+          trfComment.authorTrusted = null;
+        }
+        return trfComment;
       });
 
       response.send(
         {
-          auth: user ?
+          auth: trfUser ?
             null :
             this.authorizationService.getProviders(),
-          comments,
+          comments: trfComments,
           slug,
-          user
+          user: trfUser
         }
       )
     });
@@ -66,7 +80,6 @@ export class CommentController implements ICommentController {
 
   public markdown2Html(request: Request, response: Response): void {
     const comment = request.body.comment;
-    console.log(comment);
     response.send({ html: marked(comment.trim()) });
   }
 

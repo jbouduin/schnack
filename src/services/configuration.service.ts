@@ -1,16 +1,26 @@
 import * as express from 'express';
 import { inject, injectable } from 'inversify';
+import * as moment from 'moment';
 import 'reflect-metadata';
 
 import { environment } from '../environments/environment';
 import { IService } from './service';
 
 export interface IConfigurationService extends IService {
+  formatDate(rawDate: any): string;
   getSchnackDomain(): string;
 }
 
 @injectable()
 export class ConfigurationService implements IConfigurationService {
+
+  public formatDate(rawDate: any): string {
+    const m = moment.utc(rawDate);
+    if (environment.dateFormat && environment.dateFormat !== '') {
+      return m.format(environment.dateFormat);
+    }
+    return m.fromNow();
+  }
 
   public getSchnackDomain(): string {
     const schnackHostName = environment.schnackHostName;

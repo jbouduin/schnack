@@ -3,27 +3,35 @@
     <li id="comment-<%= comment.id %>" data-id="<%= comment.id %>" class="schnack-comment<% if (!comment.approved && !comment.trusted) { %> schnack-not-approved<% } %>">
       <div class="schnack-comment-inner">
         <div class="schnack-dateline">
-          <span class="schnack-author"><% if (comment.author_url) { %><a href="<%= comment.author_url %>" target="_blank"><% } %><%= comment.display_name || comment.name %><% if (comment.author_url) { %></a><% } %></span>
-            <% if (data.user && data.user.admin &&!comment.trusted) {
-              ['trust', 'block'].forEach((action) => { %>
-                <button class="schnack-action" data-target="<%= comment.user_id %>" data-class="user" data-action="<%= action %>">
-                  <i class="icon schnack-icon-<%= action %>"></i>
-                  <span>
-                    <%= action %>
-                  </span>
-                </button>
-                <% }); }
-            %>
+          <span class="schnack-author">
+            <% if (comment.authorUrl) { %>
+              <a href="<%= comment.authorUrl %>" target="_blank">
+            <% } %>
+            <%= comment.author %>
+            <% if (comment.authorUrl) { %>
+              </a>
+              <% } %>
+          </span>
+          <% if (data.user && data.user.admin &&!comment.authorTrusted) {
+            ['trust', 'block'].forEach((action) => {
+          %>
+            <button class="schnack-action" data-target="<%= comment.authorId %>" data-class="user" data-action="<%= action %>">
+              <i class="icon schnack-icon-<%= action %>"></i>
+              <span>
+                <%= action %>
+              </span>
+            </button>
+          <% }); } %>
           <span class="schnack-date">
             <a href="#comment-<%= comment.id %>">
-              <%= comment.created_at_s %>
+              <%= comment.created %>
             </a>
           </span>
         </div>
         <blockquote class="schnack-body">
           <%= comment.comment %>
         </blockquote>
-        <% if (!comment.approved && !comment.trusted) { %>
+        <% if (!comment.approved && !comment.authorTrusted) { %>
           <div class="schnack-awaiting-approval">
             <% if (data.user && data.user.admin) {
             ['approve', 'reject'].forEach((action) => { %>
