@@ -26,54 +26,65 @@ export class RouteService implements IRouteService {
       '/hello',
       (request: express.Request, response: express.Response) => {
         this.homeController.helloWorld(request, response);
-      });
+      }
+    );
 
     router.get(
       '/comments/:slug',
       (request: express.Request, response: express.Response) => {
         this.commentController.getComments(request, response);
-      });
+      }
+    );
 
     router.post(
       '/comments/:slug',
       (request: express.Request, response: express.Response) => {
         this.commentController.postComment(request, response);
-      });
+      }
+    );
+
+    router.get(
+      '/feed',
+      (request: express.Request, response: express.Response) => {
+        this.commentController.getRssFeedForModeration(request, response);
+      }
+    );
 
     router.post(
       '/comment/:id/approve',
       (request: express.Request, response: express.Response) => {
         this.commentController.approveComment(request, response);
-      });
+      }
+    );
 
     router.post(
       '/comment/:id/reject',
       (request: express.Request, response: express.Response) => {
           this.commentController.rejectComment(request, response);
-      });
+      }
+    );
 
-      app.post(
-        '/markdown',
-        (request: express.Request, response: express.Response) => {
-          this.commentController.markdown2Html(request, response);
-      });
+    router.post(
+      '/markdown',
+      (request: express.Request, response: express.Response) => {
+        this.commentController.markdown2Html(request, response);
+      }
+    );
 
     router.post(
       '/user/:id/block',
       (request: express.Request, response: express.Response) => {
           this.userController.blockUser(request, response);
-      });
+      }
+    );
 
     router.post(
       '/user/:id/trust',
       (request: express.Request, response: express.Response) => {
           this.userController.trustUser(request, response);
-      });
+      }
+    );
 
-    // TODO post /user/:id/unblock
-    // TODO post /user/:id/untrust
-    // TODO post /user/:id/grantadmin
-    // TODO post /user/:id/revokeadmin
     app.use(router);
 
     return Promise.resolve(true);

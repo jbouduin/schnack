@@ -10,6 +10,7 @@ export interface ICommentService extends IService {
   approveComment(commentId: number): Promise<Comment>;
   createComment(user: User, replyTo: number, slug: string, comment: string): Promise<Comment>;
   getCommentsBySlug(slug: string, userId: number, administrator: boolean): Promise<Array<Comment>>;
+  getCommentsForModeration(): Promise<Array<Comment>>;
   rejectComment(commentId: number): Promise<Comment>;
 }
 
@@ -40,12 +41,11 @@ export class CommentService implements ICommentService {
 
   public async getCommentsBySlug(slug: string, userId: number, administrator: boolean): Promise<Array<Comment>> {
 
-
     const commentRepository = getRepository(Comment);
 
-    var qryBuilder = commentRepository.createQueryBuilder('comment')
-    .leftJoinAndSelect('comment.user', 'user')
-    .where('comment.slug = :slug', { slug });
+    const qryBuilder = commentRepository.createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.user', 'user')
+      .where('comment.slug = :slug', { slug });
 
     if (administrator) {
       // SELECT user_id, user.name, user.display_name, comment.id,
@@ -81,11 +81,31 @@ export class CommentService implements ICommentService {
           )
           .orWhere('user.id = :userId', { userId })
         )
-      )
+      );
     }
 
     return qryBuilder
       .orderBy('comment.created', 'DESC')
+      .getMany();
+  }
+
+  public getCommentsForModeration(): Promise<Array<Comment>> {
+
+    const commentRepository = getRepository(Comment);
+
+    // SELECT comment.id, slug, comment.created_at
+    //   FROM comment INNER JOIN user ON (user_id=user.id)
+    //   WHERE NOT user.blocked AND NOT user.trusted AND
+    //    NOT comment.rejected AND NOT comment.approved
+    //    ORDER BY comment.created_at DESC LIMIT 20
+    return commentRepository.createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.user', 'user')
+      .andWhere('not user.blocked')
+      .andWhere('not user.trusted')
+      .andWhere('not comment.rejected')
+      .andWhere('not comment.approved')
+      .orderBy('comment.created', 'DESC')
+      .limit(20)
       .getMany();
   }
 

@@ -9,6 +9,7 @@ import { IService } from './service';
 export interface IConfigurationService extends IService {
   formatDate(rawDate: any): string;
   getSchnackDomain(): string;
+  getSchnackHost(): string;
 }
 
 @injectable()
@@ -40,6 +41,13 @@ export class ConfigurationService implements IConfigurationService {
       );
       process.exit(-1);
     }
+  }
+
+  public getSchnackHost(): string {
+    const host = `${environment.schnackProtocol}://${environment.schnackHostName}`;
+    return environment.schnackPort && environment.schnackPort !== 0 ?
+      `${host}:${environment.schnackPort}` :
+      host;
   }
 
   public async initialize(app: express.Application): Promise<any> {

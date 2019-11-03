@@ -75,14 +75,9 @@ class App {
 
 export default new App().app;
 /*
-const cors = require('cors');
-const moment = require('moment');
-const RSS = require('rss');
-const marked = require('marked');
-
 const awaiting_moderation = [];
 
-    pushHandler.init(app, db, awaiting_moderation);
+pushHandler.init(app, db, awaiting_moderation);
     // POST new comment
     app.post('/comments/:slug', (request, reply) => {
     if (!user) return error('access denied', request, reply, 403);
@@ -99,36 +94,4 @@ const awaiting_moderation = [];
 
     });
 
-    // rss feed of comments in need of moderation
-    app.get('/feed', (request, reply) => {
-        const user = getUser(request);
-        if (!isAdmin(user)) return reply.status(403).send({ error: 'Forbidden' });
-        var feed = new RSS({
-            title: 'Awaiting moderation',
-            site_url: config.get('schnack_host')
-        });
-        db.each(
-            queries.awaiting_moderation,
-            (err, row) => {
-                if (err) console.error(err.message);
-                feed.item({
-                    title: `New comment on '${row.slug}'`,
-                    description: `A new comment on '${row.slug}' is awaiting moderation`,
-                    url: row.slug + '/' + row.id,
-                    guid: row.slug + '/' + row.id,
-                    date: row.created_at
-                });
-            },
-            err => {
-                console.error(err);
-                reply.send(feed.xml({ indent: true }));
-            }
-        );
-    });
-
-    // for markdown preview
-    app.post('/markdown', (request, reply) => {
-        const { comment } = request.body;
-        reply.send({ html: marked(comment.trim()) });
-    });
 */

@@ -2,14 +2,16 @@ import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import * as marked from 'marked';
 import 'reflect-metadata';
+import * as rss from 'rss';
 
-import { IAuthorizationService, IConfigurationService, ICommentService } from '../services';
+import { IAuthorizationService, ICommentService, IConfigurationService } from '../services';
 import SERVICETYPES from '../services/service.types';
 import { TrfComment, TrfUser } from '../transfer';
 
 export interface ICommentController {
   approveComment(request: Request, response: Response): void;
   getComments(request: Request, response: Response): void;
+  getRssFeedForModeration(request: Request, response: Response): void;
   markdown2Html(request: Request, response: Response): void;
   postComment(request: Request, response: Response): void;
   rejectComment(request: Request, response: Response): void;
@@ -53,9 +55,8 @@ export class CommentController implements ICommentController {
   public getComments(request: Request, response: Response): void {
     const slug = request.params.slug;
 
-    var trfUser: TrfUser = null;
-    if (request.session && request.session.passport && request.session.passport.user)
-    {
+    let trfUser: TrfUser = null;
+    if (request.session && request.session.passport && request.session.passport.user) {
       trfUser = new TrfUser();
       trfUser.name = request.session.passport.user.display_name || request.session.passport.user.name;
       trfUser.administrator = request.session.passport.user.administrator;
@@ -81,20 +82,58 @@ export class CommentController implements ICommentController {
             trfComment.authorTrusted = null;
           }
           return trfComment;
-        }
-      );
+        });
 
-      response.send(
-        {
-          auth: trfUser ?
-            null :
-            this.authorizationService.getProviders(),
-          comments: trfComments,
-          slug,
-          user: trfUser
+        response.send(
+          {
+            auth: trfUser ?
+              null :
+              this.authorizationService.getProviders(),
+            comments: trfComments,
+            slug,
+            user: trfUser
+          }
+        );
+      });
+  }
+
+  public getRssFeedForModeration(request: Request, response: Response): void {
+    if (!request.isAuthenticated()) {
+      response.sendStatus(401);
+    } else {
+      if (!request.session.passport.user.administrator) {
+        response.sendStatus(403);
+      } else {
+        const commentId = Number(request.params.id);
+        if (isNaN(commentId)) {
+          response.sendStatus(400);
+        } else {
+          this.commentService
+            .getCommentsForModeration()
+            .then(comments => {
+              const feed = new rss({
+                site_url: this.configurationService.getSchnackHost(),
+                title: 'Awaiting moderation'
+              });
+              console.log(feed);
+              comments.forEach(comment => {
+                feed.item({
+                  date: comment.created,
+                  description: `A new comment on '${comment.slug}' is awaiting moderation`,
+                  guid: comment.slug + '/' + comment.id,
+                  title: `New comment on '${comment.slug}'`,
+                  url: comment.slug + '/' + comment.id
+                });
+              });
+              response.send(feed.xml({ indent: true }));
+            })
+            .catch(err => {
+              console.log(err);
+              response.sendStatus(500);
+            });
         }
-      )
-    });
+      }
+    }
   }
 
   public markdown2Html(request: Request, response: Response): void {
