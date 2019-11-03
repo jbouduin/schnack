@@ -59,11 +59,11 @@ export class CommentController implements ICommentController {
     if (request.session && request.session.passport && request.session.passport.user) {
       trfUser = new TrfUser();
       trfUser.name = request.session.passport.user.display_name || request.session.passport.user.name;
-      trfUser.administrator = request.session.passport.user.administrator;
+      trfUser.admin = request.session.passport.user.administrator;
     }
 
     this.commentService
-      .getCommentsBySlug(slug, 1, trfUser && trfUser.administrator)
+      .getCommentsBySlug(slug, 1, trfUser && trfUser.admin)
       .then(comments => {
         const trfComments = comments.map(comment => {
           const trfComment = new TrfComment();
@@ -74,7 +74,7 @@ export class CommentController implements ICommentController {
           trfComment.authorUrl = comment.user.url;
           trfComment.comment = marked(comment.comment.trim());
           trfComment.created = this.configurationService.formatDate(comment.created);
-          if (trfUser && trfUser.administrator) {
+          if (trfUser && trfUser.admin) {
             trfComment.authorId = comment.user.id;
             trfComment.authorTrusted = comment.user.trusted;
           } else {

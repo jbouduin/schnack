@@ -102,7 +102,7 @@ export class AuthorizationService implements IAuthorizationService {
     router.get('/success', (request, reply) => {
         const schnackDomain = this.configurationService.getSchnackDomain();
         reply.send(`<script>
-            document.domain = '${schnackDomain}';
+            document.domain = '${schnackDomain}:8080';
             window.opener.__schnack_wait_for_oauth();
         </script>`);
     });

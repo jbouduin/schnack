@@ -1,4 +1,4 @@
 export class TrfUser {
   public name: string;
-  public administrator: boolean;
+  public admin: boolean;
 }

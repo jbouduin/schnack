@@ -6,29 +6,38 @@ import uglify from 'rollup-plugin-uglify';
 import jst from 'rollup-plugin-jst';
 
 const plugins = [
-    jst({
-      extensions: ['.html'],
-      include: 'src/embed/**.html'
-    }),
-    commonjs(),
-    resolve(),
-    buble(),
-    uglify()
+  jst({
+    extensions: ['.html'],
+    include: 'src/embed/**.html'
+  }),
+  commonjs(),
+  resolve(),
+  buble(),
+//  uglify()
 ];
 
-export default [{
+export default [
+  {
     input: 'src/embed/index.js',
     output: {
-        file: 'build/embed.js',
-        format: 'iife'
+      file: 'build/embed.js',
+      format: 'iife'
     },
     plugins
-}, {
+  }, {
     input: 'src/embed/client.js',
     output: {
-        file: 'build/client.js',
-        format: 'umd',
-        name: 'Schnack'
+      file: 'build/client.js',
+      format: 'umd',
+      name: 'Schnack'
     },
     plugins
-}];
+  },  {
+    input: 'src/embed/push.js',
+    output: {
+      file: 'build/push.js',
+      format: 'cjs'
+    },
+    plugins
+  }
+];
