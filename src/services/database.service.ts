@@ -3,7 +3,7 @@ import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { createConnection} from 'typeorm';
 
-import { Comment, Session, User } from '../db/entities';
+import { Comment, Session, Subscription, User } from '../db/entities';
 import { environment } from '../environments/environment';
 
 import { IService } from './service';
@@ -17,7 +17,7 @@ export class DatabaseService implements IDatabaseService {
   public async initialize(app: Application): Promise<any> {
     return createConnection({
         database: 'data.sqlite',
-        entities: [Comment, Session, User],
+        entities: [Comment, Session, Subscription, User],
         synchronize: true,
         type: 'sqlite'
     });
