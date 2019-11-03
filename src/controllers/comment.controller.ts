@@ -145,18 +145,28 @@ export class CommentController implements ICommentController {
     if (!request.isAuthenticated()) {
       response.sendStatus(401);
     } else {
-      // TODO Legacy: checkValidComment(db, slug, user.id, comment, replyTo, err => {
       this.commentService
-        .createComment(
-          request.session.passport.user,
+        .getLastComment(
+          request.session.passport.user.id,
           request.body.reply_to,
-          request.params.slug,
-          request.body.comment
-        )
-        .then(result => response.send({ status: 'ok', id: result.id }))
-        .catch(err => {
-          console.log(err);
-          response.sendStatus(500);
+          request.params.slug)
+        .then(lastComment => {
+          if (lastComment && lastComment.comment === request.body.comment)
+          {
+            response.send({ status: 'rejected', reason: 'reason' });
+          } else {
+            this.commentService.createComment(
+              request.session.passport.user,
+              request.body.reply_to,
+              request.params.slug,
+              request.body.comment
+            )
+            .then(result => response.send({ status: 'ok', id: result.id }))
+            .catch(err => {
+              console.log(err);
+              response.sendStatus(500);
+            });
+          }
         });
     }
   }

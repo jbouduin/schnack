@@ -11,6 +11,7 @@ export interface ICommentService extends IService {
   createComment(user: User, replyTo: number, slug: string, comment: string): Promise<Comment>;
   getCommentsBySlug(slug: string, userId: number, administrator: boolean): Promise<Array<Comment>>;
   getCommentsForModeration(): Promise<Array<Comment>>;
+  getLastComment(userId: number, replyTo: number, slug: string): Promise<Comment>;
   rejectComment(commentId: number): Promise<Comment>;
 }
 
@@ -89,7 +90,7 @@ export class CommentService implements ICommentService {
       .getMany();
   }
 
-  public getCommentsForModeration(): Promise<Array<Comment>> {
+  public async getCommentsForModeration(): Promise<Array<Comment>> {
 
     const commentRepository = getRepository(Comment);
 
@@ -107,6 +108,24 @@ export class CommentService implements ICommentService {
       .orderBy('comment.created', 'DESC')
       .limit(20)
       .getMany();
+  }
+
+  public async getLastComment(userId: number, replyTo: number, slug: string): Promise<Comment> {
+    console.log(userId);
+    console.log(replyTo);
+    console.log(slug);
+
+    const queryBuilder = getRepository(Comment)
+      .createQueryBuilder('comment')
+      .where('comment.userId = :userId', { userId })
+      .where('comment.slug = :slug', { slug });
+
+    if (replyTo) {
+      queryBuilder.where('comment.reply_to = :replyTo', { replyTo})
+    }
+
+    return queryBuilder.orderBy('comment.created', 'DESC')
+      .getOne();
   }
 
   public async initialize(app: Application): Promise<any> {
