@@ -2,7 +2,7 @@ import * as express from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 
-import { ICommentController, IHomeController, IUserController } from '../controllers';
+import { ICommentController, IHomeController, ISubscriptionController, IUserController } from '../controllers';
 import CONTROLLERTYPES from '../controllers/controller.types';
 
 import { IService } from './service';
@@ -16,6 +16,7 @@ export class RouteService implements IRouteService {
   public constructor(
     @inject(CONTROLLERTYPES.CommentController) private commentController: ICommentController,
     @inject(CONTROLLERTYPES.HomeController) private homeController: IHomeController,
+    @inject(CONTROLLERTYPES.SubscriptionController) private subscriptionController: ISubscriptionController,
     @inject(CONTROLLERTYPES.UserController) private userController: IUserController
   ) { }
 
@@ -82,6 +83,21 @@ export class RouteService implements IRouteService {
       '/user/:id/trust',
       (request: express.Request, response: express.Response) => {
           this.userController.trustUser(request, response);
+      }
+    );
+
+
+    router.post(
+      '/subscribe',
+      (request: express.Request, response: express.Response) => {
+        this.subscriptionController.subscribe(request, response);
+      }
+    );
+
+    router.post(
+      '/unsubscribe',
+      (request: express.Request, response: express.Response) => {
+        this.subscriptionController.subscribe(request, response);
       }
     );
 

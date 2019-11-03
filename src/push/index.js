@@ -100,24 +100,7 @@ function init(app, db, awaiting_moderation) {
         )
     );
 
-    // push notifications
-    app.post('/subscribe', (request, reply) => {
-        const { endpoint, publicKey, auth } = request.body;
 
-        db.run(queries.subscribe, endpoint, publicKey, auth, err => {
-            if (error(err, request, reply)) return;
-            reply.send({ status: 'ok' });
-        });
-    });
-
-    app.post('/unsubscribe', (request, reply) => {
-        const { endpoint } = request.body;
-
-        db.run(queries.unsubscribe, endpoint, err => {
-            if (error(err, request, reply)) return;
-            reply.send({ status: 'ok' });
-        });
-    });
 }
 
 module.exports = {

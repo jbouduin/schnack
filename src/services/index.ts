@@ -4,4 +4,5 @@ export * from './comment.service';
 export * from './database.service';
 export * from './configuration.service';
 export * from './route.service';
+export * from './subscription.service';
 export * from './user.service';
