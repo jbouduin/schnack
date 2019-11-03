@@ -86,7 +86,6 @@ export class RouteService implements IRouteService {
       }
     );
 
-
     router.post(
       '/subscribe',
       (request: express.Request, response: express.Response) => {

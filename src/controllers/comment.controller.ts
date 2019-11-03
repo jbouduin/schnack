@@ -151,8 +151,7 @@ export class CommentController implements ICommentController {
           request.body.reply_to,
           request.params.slug)
         .then(lastComment => {
-          if (lastComment && lastComment.comment === request.body.comment)
-          {
+          if (lastComment && lastComment.comment === request.body.comment) {
             response.send({ status: 'rejected', reason: 'reason' });
           } else {
             this.commentService.createComment(

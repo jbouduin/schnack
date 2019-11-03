@@ -121,7 +121,7 @@ export class CommentService implements ICommentService {
       .where('comment.slug = :slug', { slug });
 
     if (replyTo) {
-      queryBuilder.where('comment.reply_to = :replyTo', { replyTo})
+      queryBuilder.where('comment.reply_to = :replyTo', { replyTo});
     }
 
     return queryBuilder.orderBy('comment.created', 'DESC')
