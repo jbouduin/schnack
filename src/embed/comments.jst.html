@@ -31,7 +31,7 @@
         <blockquote class="schnack-body">
           <%= comment.comment %>
         </blockquote>
-        <% if (!comment.approved && !comment.authorTrusted) { %>
+        <% if (comment.authorId && !comment.approved && !comment.authorTrusted) { %>
           <div class="schnack-awaiting-approval">
             <% if (data.user && data.user.admin) {
             ['approve', 'reject'].forEach((action) => { %>

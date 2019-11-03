@@ -1,14 +1,5 @@
 module.exports = {
 
-
-    admin_get_comments: `SELECT user_id, user.name, user.display_name, comment.id,
-        comment.created_at, comment, approved, trusted, provider,
-        reply_to
-      FROM comment INNER JOIN user ON (user_id=user.id)
-      WHERE slug = ? AND NOT user.blocked
-        AND NOT comment.rejected
-      ORDER BY comment.created_at DESC`,
-
     get_last_comment: `SELECT comment, user_id FROM comment WHERE slug = ?
       ORDER BY comment.created_at DESC LIMIT 1`,
 

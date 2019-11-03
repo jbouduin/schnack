@@ -37,7 +37,6 @@ export class CommentController implements ICommentController {
     const slug = request.params.slug;
 
     var trfUser: TrfUser = null;
-    // TODO legacy: admin has a separate query, viewing more
     if (request.session && request.session.passport && request.session.passport.user)
     {
       trfUser = new TrfUser();
@@ -45,25 +44,28 @@ export class CommentController implements ICommentController {
       trfUser.administrator = request.session.passport.user.administrator;
     }
 
-    this.commentService.getCommentsBySlug(slug, 1).then(comments => {
-      const trfComments = comments.map(comment => {
-        const trfComment = new TrfComment();
-        trfComment.id = comment.id;
-        trfComment.replyTo = comment.reply_to;
-        trfComment.approved = comment.approved;
-        trfComment.author = comment.user.display_name || comment.user.name;
-        trfComment.authorUrl = comment.user.url;
-        trfComment.comment = marked(comment.comment.trim());
-        trfComment.created = this.configurationService.formatDate(comment.created);
-        if (trfUser && trfUser.administrator) {
-          trfComment.authorId = comment.user.id;
-          trfComment.authorTrusted = comment.user.trusted;
-        } else {
-          trfComment.authorId = null;
-          trfComment.authorTrusted = null;
+    this.commentService
+      .getCommentsBySlug(slug, 1, trfUser && trfUser.administrator)
+      .then(comments => {
+        const trfComments = comments.map(comment => {
+          const trfComment = new TrfComment();
+          trfComment.id = comment.id;
+          trfComment.replyTo = comment.reply_to;
+          trfComment.approved = comment.approved;
+          trfComment.author = comment.user.display_name || comment.user.name;
+          trfComment.authorUrl = comment.user.url;
+          trfComment.comment = marked(comment.comment.trim());
+          trfComment.created = this.configurationService.formatDate(comment.created);
+          if (trfUser && trfUser.administrator) {
+            trfComment.authorId = comment.user.id;
+            trfComment.authorTrusted = comment.user.trusted;
+          } else {
+            trfComment.authorId = null;
+            trfComment.authorTrusted = null;
+          }
+          return trfComment;
         }
-        return trfComment;
-      });
+      );
 
       response.send(
         {
