@@ -52,6 +52,12 @@ export class RouteService implements IRouteService {
           this.commentController.rejectComment(request, response);
       });
 
+      app.post(
+        '/markdown',
+        (request: express.Request, response: express.Response) => {
+          this.commentController.markdown2Html(request, response);
+      });
+
     router.post(
       '/user/:id/block',
       (request: express.Request, response: express.Response) => {

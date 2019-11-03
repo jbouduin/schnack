@@ -82,8 +82,6 @@ const marked = require('marked');
 
 const awaiting_moderation = [];
 
-marked.setOptions({ sanitize: true });
-
     pushHandler.init(app, db, awaiting_moderation);
     // POST new comment
     app.post('/comments/:slug', (request, reply) => {

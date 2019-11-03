@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
+import * as marked from 'marked';
 import 'reflect-metadata';
 
 import { IAuthorizationService, ICommentService } from '../services';
@@ -7,9 +8,11 @@ import SERVICETYPES from '../services/service.types';
 
 export interface ICommentController {
   approveComment(request: Request, response: Response): void;
-  rejectComment(request: Request, response: Response): void;
   getComments(request: Request, response: Response): void;
+  markdown2Html(request: Request, response: Response): void;
   postComment(request: Request, response: Response): void;
+  rejectComment(request: Request, response: Response): void;
+
 }
 
 @injectable()
@@ -17,18 +20,14 @@ export class CommentController implements ICommentController {
   // constructor
   public constructor(
     @inject(SERVICETYPES.AuthorizationService) private authorizationService: IAuthorizationService,
-    @inject(SERVICETYPES.CommentService) private commentService: ICommentService) { }
+    @inject(SERVICETYPES.CommentService) private commentService: ICommentService) {
+    marked.setOptions({ sanitize: true });
+  }
 
   // interface members
   public approveComment(request: Request, response: Response): void  {
     const commentId = request.params.id;
     console.log(`in approveComment ${commentId}`);
-    response.sendStatus(500);
-  }
-
-  public rejectComment(request: Request, response: Response): void  {
-    const commentId = request.params.id;
-    console.log(`in rejectComment ${commentId}`);
     response.sendStatus(500);
   }
 
@@ -47,7 +46,11 @@ export class CommentController implements ICommentController {
       request.session.passport.user :
       null;
 
-    this.commentService.getCommentsBySlug(slug, 1).then(comments =>
+    this.commentService.getCommentsBySlug(slug, 1).then(comments => {
+      comments.forEach(comment => {
+        comment.comment = marked(comment.comment.trim());
+      });
+
       response.send(
         {
           auth: user ?
@@ -58,7 +61,13 @@ export class CommentController implements ICommentController {
           user
         }
       )
-    );
+    });
+  }
+
+  public markdown2Html(request: Request, response: Response): void {
+    const comment = request.body.comment;
+    console.log(comment);
+    response.send({ html: marked(comment.trim()) });
   }
 
   public postComment(request: Request, response: Response): void {
@@ -78,5 +87,11 @@ export class CommentController implements ICommentController {
         console.log(err);
         response.sendStatus(500);
       });
+  }
+
+  public rejectComment(request: Request, response: Response): void  {
+    const commentId = request.params.id;
+    console.log(`in rejectComment ${commentId}`);
+    response.sendStatus(500);
   }
 }
