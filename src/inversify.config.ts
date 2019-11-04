@@ -1,9 +1,13 @@
 import { Container } from 'inversify';
 
 import CONTROLLERTYPES from './controllers/controller.types';
+import CONSUMERTYPES from './events/consumers/consumer.types';
 import SERVICETYPES from './services/service.types';
 
 /* tslint:disable ordered-imports */
+// consumers
+import { IWriteLogConsumer, WriteLogConsumer } from './events/consumers';
+
 // controllers
 import { ICommentController, CommentController } from './controllers';
 import { IHomeController, HomeController } from './controllers';
@@ -14,6 +18,7 @@ import { IUserController, UserController } from './controllers';
 import { IAuthorizationService, AuthorizationService } from './services';
 import { ICommentService, CommentService } from './services';
 import { IDatabaseService, DatabaseService } from './services';
+import { IEventService, EventService } from './services';
 import { IConfigurationService, ConfigurationService } from './services';
 import { IRouteService, RouteService } from './services';
 import { ISubscriptionService, SubscriptionService } from './services';
@@ -22,6 +27,8 @@ import { IUserService, UserService } from './services';
 
 const container = new Container();
 
+// Consumers
+container.bind<IWriteLogConsumer>(CONSUMERTYPES.WriteLogConsumer).to(WriteLogConsumer).inSingletonScope();
 // controllers
 container.bind<ICommentController>(CONTROLLERTYPES.CommentController).to(CommentController);
 container.bind<IHomeController>(CONTROLLERTYPES.HomeController).to(HomeController);
@@ -31,8 +38,9 @@ container.bind<IUserController>(CONTROLLERTYPES.UserController).to(UserControlle
 // services
 container.bind<IAuthorizationService>(SERVICETYPES.AuthorizationService).to(AuthorizationService).inSingletonScope();
 container.bind<ICommentService>(SERVICETYPES.CommentService).to(CommentService);
-container.bind<IDatabaseService>(SERVICETYPES.DatabaseService).to(DatabaseService).inSingletonScope();
 container.bind<IConfigurationService>(SERVICETYPES.ConfigurationService).to(ConfigurationService).inSingletonScope();
+container.bind<IDatabaseService>(SERVICETYPES.DatabaseService).to(DatabaseService).inSingletonScope();
+container.bind<IEventService>(SERVICETYPES.EventService).to(EventService).inSingletonScope();
 container.bind<IRouteService>(SERVICETYPES.RouteService).to(RouteService).inSingletonScope();
 container.bind<ISubscriptionService>(SERVICETYPES.SubscriptionService).to(SubscriptionService);
 container.bind<IUserService>(SERVICETYPES.UserService).to(UserService);

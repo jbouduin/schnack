@@ -4,9 +4,11 @@ import * as marked from 'marked';
 import 'reflect-metadata';
 import * as rss from 'rss';
 
-import { IAuthorizationService, ICommentService, IConfigurationService } from '../services';
-import SERVICETYPES from '../services/service.types';
+import { NewCommentEvent } from '../events';
+import { IAuthorizationService, ICommentService, IConfigurationService, IEventService } from '../services';
 import { TrfComment, TrfUser } from '../transfer';
+
+import SERVICETYPES from '../services/service.types';
 
 export interface ICommentController {
   approveComment(request: Request, response: Response): void;
@@ -24,7 +26,8 @@ export class CommentController implements ICommentController {
   public constructor(
     @inject(SERVICETYPES.AuthorizationService) private authorizationService: IAuthorizationService,
     @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService,
-    @inject(SERVICETYPES.CommentService) private commentService: ICommentService) {
+    @inject(SERVICETYPES.CommentService) private commentService: ICommentService,
+    @inject(SERVICETYPES.EventService) private eventService: IEventService) {
     marked.setOptions({ sanitize: true });
   }
 
@@ -160,7 +163,10 @@ export class CommentController implements ICommentController {
               request.params.slug,
               request.body.comment
             )
-            .then(result => response.send({ status: 'ok', id: result.id }))
+            .then(result => {
+              this.eventService.postEvent(new NewCommentEvent(result));
+              response.send({ status: 'ok', id: result.id });
+            })
             .catch(err => {
               console.log(err);
               response.sendStatus(500);

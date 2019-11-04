@@ -3,6 +3,7 @@ const SERVICETYPES = {
   CommentService: Symbol('CommentService'),
   ConfigurationService: Symbol('ConfigurationService'),
   DatabaseService: Symbol('DatabaseService'),
+  EventService: Symbol('EventService'),
   RouteService: Symbol('RouteService'),
   SubscriptionService: Symbol('SubscriptionService'),
   UserService: Symbol('UserService')

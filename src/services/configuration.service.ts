@@ -8,6 +8,7 @@ import { IService } from './service';
 
 export interface IConfigurationService extends IService {
   formatDate(rawDate: any): string;
+  getPageUrl(): string;
   getSchnackDomain(): string;
   getSchnackHost(): string;
 }
@@ -21,6 +22,10 @@ export class ConfigurationService implements IConfigurationService {
       return m.format(environment.dateFormat);
     }
     return m.fromNow();
+  }
+
+  public getPageUrl(): string {
+    return 'todo %SLUG%';
   }
 
   public getSchnackDomain(): string {

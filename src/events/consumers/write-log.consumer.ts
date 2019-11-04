@@ -1,0 +1,34 @@
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
+
+import { Comment, User } from '../../db/entities';
+import { IConfigurationService } from '../../services';
+
+import { EventType, IEvent } from '..';
+import { ConsumerCallback, IConsumer } from './consumer';
+
+import SERVICETYPES from '../../services/service.types';
+
+export interface IWriteLogConsumer extends IConsumer { }
+
+@injectable()
+export class WriteLogConsumer implements IWriteLogConsumer {
+
+  // constructor
+  public constructor(
+    @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService) {
+    console.log('writelog constructor');
+  }
+
+  // interface members
+  public registerConsumers(): Array<[EventType, ConsumerCallback]> {
+    const result = new Array<[EventType, ConsumerCallback]>();
+    result.push([EventType.NewComment, this.newCommentCallBack]);
+    return result;
+  }
+
+  // callback method
+  private newCommentCallBack(comment: Comment): void {
+    console.log(`event: ${EventType.NewComment} on slug '${comment.slug}'' by '${comment.user.display_name || comment.user.name}''`);
+  }
+}
