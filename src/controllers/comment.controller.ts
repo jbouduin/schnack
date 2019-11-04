@@ -74,7 +74,10 @@ export class CommentController implements ICommentController {
           trfComment.replyTo = comment.reply_to;
           trfComment.approved = comment.approved;
           trfComment.author = comment.user.display_name || comment.user.name;
-          trfComment.authorUrl = comment.user.url;
+          trfComment.authorUrl = this.getAuthorUrl(
+            comment.user.url,
+            comment.user.provider,
+            comment.user.name);
           trfComment.comment = marked(comment.comment.trim());
           trfComment.created = this.configurationService.formatDate(comment.created);
           if (trfUser && trfUser.admin) {
@@ -197,5 +200,19 @@ export class CommentController implements ICommentController {
         }
       }
     }
+  }
+
+  // private helper methods
+  private getAuthorUrl(userUrl: string, provider: string, name: string): string {
+    if (userUrl) {
+      return userUrl;
+    }
+    switch (provider) {
+      case 'twitter':
+        return 'https://twitter.com/' + name;
+      case 'github':
+        return 'https://github.com/' + name;
+    }
+    return null;
   }
 }
