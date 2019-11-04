@@ -368,7 +368,6 @@ Schnack.prototype.refresh = function refresh () {
               };
             };
             if (provider.id === 'anonymous') {
-              console.log(window.document.domain);
               var form = document.createElement("form");
               form.setAttribute("method", "POST");
               form.setAttribute("action", (host + "/auth/" + (provider.id)));
@@ -383,12 +382,11 @@ Schnack.prototype.refresh = function refresh () {
               addField("username", "dummy");
               addField("password", "dummy");
               var windowRef = window.open();
-              windowRef.document.body.appendChild(form);
               window.__schnack_wait_for_oauth = function () {
                 windowRef.close();
                 this$1.refresh();
               };
-
+              windowRef.document.body.appendChild(form);
               form.submit();
             } else {
               signin();
