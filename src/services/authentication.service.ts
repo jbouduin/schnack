@@ -11,7 +11,7 @@ import * as twitter from 'passport-twitter';
 import 'reflect-metadata';
 
 import { Authentication, Provider, ProviderName } from '../configuration';
-import SERVICETYPES from '../services/service.types';
+import SERVICETYPES from './service.types';
 
 import { IConfigurationService} from './configuration.service';
 import { IService } from './service';
@@ -113,13 +113,31 @@ export class AuthenticationService implements IAuthenticationService {
 
     this.configurationService.environment.authentication.providers.forEach(provider => {
       switch (provider.name) {
-        case ProviderName.TWITTER: this.initializeTwitter(router, provider); break;
-        case ProviderName.GITHUB: this.initializeGitHub(router, provider); break;
-        case ProviderName.GOOGLE: this.initializeGoogle(router, provider); break;
-        case ProviderName.FACEBOOK: this.initializeFacebook(router, provider); break;
-        case ProviderName.LINKEDIN: this.initializeLinkedIn(router, provider); break;
-        case ProviderName.INSTAGRAM: this.initializeInstagram(router, provider); break;
-        default: console.log(`Unknown authentication provider found: '${provider.name}'`);
+        case ProviderName.TWITTER: {
+          this.initializeTwitter(router, provider);
+          break;
+        }
+        case ProviderName.GITHUB: {
+          this.initializeGitHub(router, provider);
+          break;
+        }
+        case ProviderName.GOOGLE: {
+          this.initializeGoogle(router, provider);
+          break;
+        }
+        case ProviderName.FACEBOOK: {
+          this.initializeFacebook(router, provider);
+          break;
+        }
+        case ProviderName.LINKEDIN: {
+          this.initializeLinkedIn(router, provider);
+          break;
+        }
+        case ProviderName.INSTAGRAM: {
+          this.initializeInstagram(router, provider);
+          break;
+        }
+        default: console.log(`Non supported authentication provider found in the configuration: '${provider.name}'`);
       }
     });
 

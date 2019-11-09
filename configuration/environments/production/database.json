@@ -1,0 +1,26 @@
+{
+  "targets": [
+    {
+      "connectionName": "comments",
+      "targetType": "comments"
+    }, {
+      "connectionName": "sessions",
+      "targetType": "sessions"
+    }
+  ],
+  "connections": [
+    {
+      "connectionName": "sessions",
+      "databaseName": "sessions",
+      "connectionType": "sqlite"
+    }, {
+      "connectionName": "comments",
+      "databaseName": "comments",
+      "connectionType": "mysql",
+      "hostName": "${process.env.SCHNACK_COMMENTSDB_HOST || 'localhost' }",
+      "port": "${process.env.SCHNACK_COMMENTSDB_PORT || 3306 }",
+      "user": "${process.env.SCHNACK_COMMENTSDB_USR || '' }",
+      "password": "${process.env.SCHNACK_COMMENTSDB_PWD || '' }"
+    }
+  ]
+}

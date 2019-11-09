@@ -3,7 +3,6 @@ import { TypeormStore } from 'connect-typeorm';
 import * as cors from 'cors';
 import * as express from 'express';
 import * as ExpressSession from 'express-session';
-import { getRepository } from 'typeorm';
 
 import { Session } from './db/entities';
 
@@ -19,20 +18,23 @@ import SERVICETYPES from './services/service.types';
 
 class App {
 
+  // public properties
   public app: express.Application;
+
+  // private properties
   private configurationService: IConfigurationService;
+  private databaseService: IDatabaseService;
 
-  public constructor() {
-    this.app = express();
-  }
-
+  // public methods
   public async initialize(): Promise<App> {
+    this.app = express();
     this.configurationService = container.get<IConfigurationService>(SERVICETYPES.ConfigurationService);
+    this.databaseService = container.get<IDatabaseService>(SERVICETYPES.DatabaseService);
     return this.configurationService.initialize(this.app)
       .then( configuration => {
         const eventService = container.get<IEventService>(SERVICETYPES.EventService);
         eventService.initialize(this.app);
-        return container.get<IDatabaseService>(SERVICETYPES.DatabaseService)
+        return this.databaseService
           .initialize(this.app)
           .then(db => {
             this.config();
@@ -69,7 +71,7 @@ class App {
     // support application/x-www-form-urlencoded post data
     this.app.use(bodyParser.urlencoded({ extended: false }));
 
-    const sessionRepository = getRepository(Session);
+    const sessionRepository = this.databaseService.getSessionRepository();
     this.app.use(ExpressSession(
       {
         cookie: {

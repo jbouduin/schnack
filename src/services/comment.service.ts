@@ -1,10 +1,14 @@
 import { Application } from 'express';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import { Brackets, createQueryBuilder, getRepository } from 'typeorm';
+import { Brackets, createQueryBuilder } from 'typeorm';
 
 import { Comment, User } from '../db/entities';
+
+import { IDatabaseService } from './database.service';
 import { IService } from './service';
+
+import SERVICETYPES from './service.types';
 
 export interface ICommentService extends IService {
   approveComment(commentId: number): Promise<Comment>;
@@ -18,9 +22,13 @@ export interface ICommentService extends IService {
 @injectable()
 export class CommentService implements ICommentService {
 
+  // constructor
+  public constructor(
+    @inject(SERVICETYPES.DatabaseService) private databaseService: IDatabaseService) { }
+
   // interface members
   public async approveComment(commentId: number): Promise<Comment> {
-    const commentRepository = getRepository(Comment);
+    const commentRepository = this.databaseService.getCommentRepository();
     const comment = await commentRepository.findOne(commentId);
     comment.approved = true;
     comment.rejected = false;
@@ -28,7 +36,7 @@ export class CommentService implements ICommentService {
   }
 
   public async createComment(user: User, replyTo: number, slug: string, comment: string): Promise<Comment> {
-    const commentRepository = getRepository(Comment);
+    const commentRepository = this.databaseService.getCommentRepository();
     const newComment = await commentRepository.create(
       {
         comment,
@@ -42,7 +50,7 @@ export class CommentService implements ICommentService {
 
   public async getCommentsBySlug(slug: string, userId: number, administrator: boolean): Promise<Array<Comment>> {
 
-    const commentRepository = getRepository(Comment);
+    const commentRepository = this.databaseService.getCommentRepository();
 
     const qryBuilder = commentRepository.createQueryBuilder('comment')
       .leftJoinAndSelect('comment.user', 'user')
@@ -92,7 +100,7 @@ export class CommentService implements ICommentService {
 
   public async getCommentsForModeration(): Promise<Array<Comment>> {
 
-    const commentRepository = getRepository(Comment);
+    const commentRepository = this.databaseService.getCommentRepository();
 
     // SELECT comment.id, slug, comment.created_at
     //   FROM comment INNER JOIN user ON (user_id=user.id)
@@ -115,7 +123,7 @@ export class CommentService implements ICommentService {
     console.log(replyTo);
     console.log(slug);
 
-    const queryBuilder = getRepository(Comment)
+    const queryBuilder = this.databaseService.getCommentRepository()
       .createQueryBuilder('comment')
       .where('comment.userId = :userId', { userId })
       .where('comment.slug = :slug', { slug });
@@ -133,7 +141,7 @@ export class CommentService implements ICommentService {
   }
 
   public async rejectComment(commentId: number): Promise<Comment> {
-    const commentRepository = getRepository(Comment);
+    const commentRepository = this.databaseService.getCommentRepository();
     const comment = await commentRepository.findOne(commentId);
     comment.approved = false;
     comment.rejected = true;

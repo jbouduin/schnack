@@ -1,13 +1,14 @@
 import { Application } from 'express';
 import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
-import { getRepository } from 'typeorm';
 
 import { Comment, User } from '../db/entities';
-import SERVICETYPES from '../services/service.types';
 
 import { IConfigurationService} from './configuration.service';
+import { IDatabaseService } from './database.service';
 import { IService } from './service';
+
+import SERVICETYPES from '../services/service.types';
 
 export interface IUserService extends IService {
   blockUser(userId: number): Promise<User>;
@@ -26,11 +27,12 @@ export class UserService implements IUserService {
 
   // constructor
   public constructor(
-    @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService) { }
+    @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService,
+    @inject(SERVICETYPES.DatabaseService) private databaseService: IDatabaseService) { }
 
   // interface members
   public async blockUser(userId: number): Promise<User> {
-    const userRepository = getRepository(User);
+    const userRepository = this.databaseService.getUserRepository();
     const user = await userRepository.findOne(userId);
     user.trusted = false;
     user.blocked = true;
@@ -38,7 +40,7 @@ export class UserService implements IUserService {
   }
 
   public async initialize(app: Application): Promise<any> {
-    const repository = getRepository(User);
+    const repository = this.databaseService.getUserRepository();
     const searches = new Array<Promise<number>>();
 
     searches.push(repository.count({ where: { administrator: true } }));
@@ -104,7 +106,7 @@ export class UserService implements IUserService {
     name: string,
     url: string): Promise<User> {
 
-    const repository = getRepository(User);
+    const repository = this.databaseService.getUserRepository();
     const newUser = new User();
     newUser.provider = provider;
     newUser.provider_id = providerId;
@@ -121,7 +123,7 @@ export class UserService implements IUserService {
     // SELECT id, name, display_name, provider, provider_id,
     //      trusted, blocked FROM user
     //    WHERE provider = ? AND provider_id = ?
-    return getRepository(User).createQueryBuilder('user')
+    return this.databaseService.getUserRepository().createQueryBuilder('user')
       .select()
       .where('user.provider = :provider', { provider })
       .andWhere('user.provider_id = :providerId', { providerId })
@@ -129,7 +131,7 @@ export class UserService implements IUserService {
   }
 
   public async trustUser(userId: number): Promise<User> {
-    const userRepository = getRepository(User);
+    const userRepository = this.databaseService.getUserRepository();
     const user = await userRepository.findOne(userId);
     user.trusted = true;
     user.blocked = false;

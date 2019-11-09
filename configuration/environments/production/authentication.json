@@ -1,0 +1,40 @@
+{
+  "allowAnonymous": false,
+  "providers": [
+    {
+      "name": "Twitter",
+      "id": "xxxxxx",
+      "secret": "xxxxxx"
+    },
+    {
+      "name": "GitHub",
+      "id": "xxxxxx",
+      "secret": "xxxxxx"
+    },
+    {
+      "name": "Google",
+      "id": "xxxxxx",
+      "secret": "xxxxxx"
+    },
+    {
+      "name": "Facebook",
+      "id": "xxxxxx",
+      "secret": "xxxxxx"
+    },
+    {
+      "name": "LinkedIn",
+      "id": "xxxxxx",
+      "secret": "xxxxxx"
+    },
+    {
+      "name": "Instagram",
+      "id": "xxxxxx",
+      "secret": "xxxxxx"
+    },
+    {
+      "name": "Fake",
+      "id": "xxxxxx",
+      "secret": "xxxxxx"
+    }
+  ]
+}

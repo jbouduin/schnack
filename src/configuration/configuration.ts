@@ -5,7 +5,7 @@ import * as path from 'path';
 
 import { Environment } from './environment/environment';
 
-import { Application } from './application';
+import { Application } from './application/application';
 
 export class Configuration {
 
