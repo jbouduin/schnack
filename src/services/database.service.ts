@@ -4,7 +4,6 @@ import 'reflect-metadata';
 import { createConnection} from 'typeorm';
 
 import { Comment, Session, Subscription, User } from '../db/entities';
-import { environment } from '../environments/environment';
 
 import { IService } from './service';
 

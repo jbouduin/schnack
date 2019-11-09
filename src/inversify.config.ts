@@ -15,7 +15,7 @@ import { ISubscriptionController, SubscriptionController } from './controllers';
 import { IUserController, UserController } from './controllers';
 // services
 
-import { IAuthorizationService, AuthorizationService } from './services';
+import { IAuthenticationService, AuthenticationService } from './services';
 import { ICommentService, CommentService } from './services';
 import { IDatabaseService, DatabaseService } from './services';
 import { IEventService, EventService } from './services';
@@ -36,7 +36,7 @@ container.bind<ISubscriptionController>(CONTROLLERTYPES.SubscriptionController).
 container.bind<IUserController>(CONTROLLERTYPES.UserController).to(UserController);
 
 // services
-container.bind<IAuthorizationService>(SERVICETYPES.AuthorizationService).to(AuthorizationService).inSingletonScope();
+container.bind<IAuthenticationService>(SERVICETYPES.AuthenticationService).to(AuthenticationService).inSingletonScope();
 container.bind<ICommentService>(SERVICETYPES.CommentService).to(CommentService);
 container.bind<IConfigurationService>(SERVICETYPES.ConfigurationService).to(ConfigurationService).inSingletonScope();
 container.bind<IDatabaseService>(SERVICETYPES.DatabaseService).to(DatabaseService).inSingletonScope();

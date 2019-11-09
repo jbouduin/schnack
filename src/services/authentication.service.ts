@@ -10,8 +10,7 @@ import * as local from 'passport-local';
 import * as twitter from 'passport-twitter';
 import 'reflect-metadata';
 
-import { environment } from '../environments/environment';
-import container from '../inversify.config';
+import { Authentication, Provider, ProviderName } from '../core/configuration';
 import SERVICETYPES from '../services/service.types';
 
 import { IConfigurationService} from './configuration.service';
@@ -23,12 +22,12 @@ export interface IProvider {
   name: string;
 }
 
-export interface IAuthorizationService extends IService {
+export interface IAuthenticationService extends IService {
   getProviders(): Array<IProvider>;
 }
 
 @injectable()
-export class AuthorizationService implements IAuthorizationService {
+export class AuthenticationService implements IAuthenticationService {
 
   // fields
   private providers = new Array<IProvider>();
@@ -50,7 +49,7 @@ export class AuthorizationService implements IAuthorizationService {
 
   // private methods
   private buildCallBackUrl(authorizer: string) {
-    return `${environment.schnackProtocol}://${environment.schnackHostName}/auth/${authorizer}/callback`;
+    return `${this.configurationService.environment.server.protocol}/auth/${authorizer}/callback`;
   }
 
   private initializePassport(app: express.Application) {
@@ -100,40 +99,29 @@ export class AuthorizationService implements IAuthorizationService {
     });
 
     router.get('/success', (request, reply) => {
-        const schnackDomain = this.configurationService.getSchnackDomain();
+        const schnackDomain = this.configurationService.getSchnackUrl();
         reply.send(`<script>
             document.domain = '${schnackDomain}:8080';
             window.opener.__schnack_wait_for_oauth();
         </script>`);
     });
 
-    if (environment.allowAnonymous) {
+    if (this.configurationService.environment.authentication.allowAnonymous) {
+      console.log('allowing anonymous access');
       this.initializeAnonymus(router);
     }
 
-    if (environment.oauthTwitter) {
-      this.initializeTwitter(router);
-    }
-
-    if (environment.oauthGitHub) {
-      this.initializeGitHub(router);
-    }
-
-    if (environment.oauthGoogle) {
-      this.initializeGoogle(router);
-    }
-
-    if (environment.oauthFacebook) {
-      this.initializeFacebook(router);
-    }
-
-    if (environment.oauthLinkedIn) {
-      this.initializeLinkedIn(router);
-    }
-
-    if (environment.oauthInstagram) {
-      this.initializeInstagram(router);
-    }
+    this.configurationService.environment.authentication.providers.forEach(provider => {
+      switch (provider.name) {
+        case ProviderName.TWITTER: this.initializeTwitter(router, provider); break;
+        case ProviderName.GITHUB: this.initializeGitHub(router, provider); break;
+        case ProviderName.GOOGLE: this.initializeGoogle(router, provider); break;
+        case ProviderName.FACEBOOK: this.initializeFacebook(router, provider); break;
+        case ProviderName.LINKEDIN: this.initializeLinkedIn(router, provider); break;
+        case ProviderName.INSTAGRAM: this.initializeInstagram(router, provider); break;
+        default: console.log(`Unknown authentication provider found: '${provider.name}'`);
+      }
+    });
 
     app.use('/auth', router);
   }
@@ -161,14 +149,14 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  private initializeTwitter(router: express.Router): void {
+  private initializeTwitter(router: express.Router, provider: Provider): void {
     this.providers.push({ id: 'twitter', name: 'Twitter' });
     passport.use(
       new twitter.Strategy(
         {
           callbackURL: this.buildCallBackUrl('twitter'),
-          consumerKey: environment.oauthTwitterConsumerKey,
-          consumerSecret: environment.oauthTwitterConsumerSecret
+          consumerKey: provider.id,
+          consumerSecret: provider.secret
         },
         (token, tokenSecret, profile, done) => { done(null, profile); }
       )
@@ -183,14 +171,14 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  private initializeGitHub(router: express.Router): void {
+  private initializeGitHub(router: express.Router, provider: Provider): void {
     this.providers.push({ id: 'github', name: 'Github' });
     passport.use(
       new github.Strategy(
         {
           callbackURL: this.buildCallBackUrl('github'),
-          clientID: environment.oauthGitHubClientId,
-          clientSecret: environment.oauthGitHubClientSecret
+          clientID: provider.id,
+          clientSecret: provider.secret
         },
         (accessToken, refreshToken, profile, done) => { done(null, profile); }
       )
@@ -205,14 +193,14 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  private initializeGoogle(router: express.Router): void {
+  private initializeGoogle(router: express.Router, provider: Provider): void {
     this.providers.push({ id: 'google', name: 'Google' });
     passport.use(
       new google.Strategy(
         {
           callbackURL: this.buildCallBackUrl('google'),
-          clientID: environment.oauthGoogleClientId,
-          clientSecret: environment.oauthGoogleClientSecret
+          consumerKey: provider.id,
+          consumerSecret: provider.secret
         },
         (accessToken, refreshToken, profile, done) => { done(null, profile); }
       )
@@ -221,7 +209,7 @@ export class AuthorizationService implements IAuthorizationService {
     router.get(
       '/google',
       passport.authenticate('google', {
-        scope: ['https://www.googleapis.com/auth/plus.login']
+        scope: ['https://www.google.com/m8/feeds']
       })
     );
 
@@ -232,14 +220,14 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  private initializeFacebook(router: express.Router): void {
+  private initializeFacebook(router: express.Router, provider: Provider): void {
     this.providers.push({ id: 'facebook', name: 'Facebook' });
     passport.use(
       new facebook.Strategy(
         {
           callbackURL: this.buildCallBackUrl('facebook'),
-          clientID: environment.oauthFacebookClientId,
-          clientSecret: environment.oauthFacebookClientSecret
+          clientID: provider.id,
+          clientSecret: provider.secret
         },
         (accessToken, refreshToken, profile, done) => { done(null, profile); }
       )
@@ -254,14 +242,14 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  private initializeInstagram(router: express.Router): void {
+  private initializeInstagram(router: express.Router, provider: Provider): void {
     this.providers.push({ id: 'instagram', name: 'Instagram' });
     passport.use(
       new instagram.Strategy(
         {
           callbackURL: this.buildCallBackUrl('instagram'),
-          clientID: environment.oauthInstagramClientId,
-          clientSecret: environment.oauthInstagramClientSecret
+          clientID: provider.id,
+          clientSecret: provider.secret
         },
         (accessToken, refreshToken, profile, done) => { done(null, profile); }
       )
@@ -276,14 +264,14 @@ export class AuthorizationService implements IAuthorizationService {
     );
   }
 
-  private initializeLinkedIn(router: express.Router): void {
+  private initializeLinkedIn(router: express.Router, provider: Provider): void {
     this.providers.push({ id: 'linkedin', name: 'LinkedIn' });
     passport.use(
       new linkedin.Strategy(
         {
           callbackURL: this.buildCallBackUrl('instagram'),
-          clientID: environment.oauthLinkedInClientId,
-          clientSecret: environment.oauthLinkedInClientSecret
+          consumerKey: provider.id,
+          consumerSecret: provider.secret
         },
         (accessToken, refreshToken, profile, done) => { done(null, profile); }
       )

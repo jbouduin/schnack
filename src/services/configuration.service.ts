@@ -1,25 +1,34 @@
 import * as express from 'express';
+import * as fs from 'fs';
 import { inject, injectable } from 'inversify';
 import * as moment from 'moment';
+import * as path from 'path';
 import 'reflect-metadata';
 
-import { environment } from '../environments/environment';
+import { Application, Configuration, Environment } from '../core/configuration';
 import { IService } from './service';
 
 export interface IConfigurationService extends IService {
+  application: Application;
+  environment: Environment;
   formatDate(rawDate: any): string;
   getPageUrl(): string;
   getSchnackDomain(): string;
-  getSchnackHost(): string;
+  getSchnackUrl(): string;
 }
 
 @injectable()
 export class ConfigurationService implements IConfigurationService {
 
+  // public properties
+  public application: Application;
+  public environment: Environment;
+
+  private configuration: Configuration;
   public formatDate(rawDate: any): string {
     const m = moment.utc(rawDate);
-    if (environment.dateFormat && environment.dateFormat !== '') {
-      return m.format(environment.dateFormat);
+    if (this.application.dateFormat && this.application.dateFormat !== '') {
+      return m.format(this.application.dateFormat);
     }
     return m.fromNow();
   }
@@ -29,7 +38,7 @@ export class ConfigurationService implements IConfigurationService {
   }
 
   public getSchnackDomain(): string {
-    const schnackHostName = environment.schnackHostName;
+    const schnackHostName = this.environment.server.hostname;
 
     if (schnackHostName === 'localhost') {
       return schnackHostName;
@@ -48,14 +57,19 @@ export class ConfigurationService implements IConfigurationService {
     }
   }
 
-  public getSchnackHost(): string {
-    const host = `${environment.schnackProtocol}://${environment.schnackHostName}`;
-    return environment.schnackPort && environment.schnackPort !== 0 ?
-      `${host}:${environment.schnackPort}` :
+  public getSchnackUrl(): string {
+    const host = `${this.environment.server.protocol}://${this.environment.server.hostname}`;
+    return this.environment.server.port && this.environment.server.port !== 0 ?
+      `${host}:${this.environment.server.port}` :
       host;
   }
 
   public async initialize(app: express.Application): Promise<any> {
-    return Promise.resolve(1);
+    this.configuration = await Configuration.loadConfiguration();
+    this.environment = this.configuration.current;
+    this.application = this.configuration.application;
+    return Promise.resolve(this.configuration);
   }
+
+  // private helper methods
 }

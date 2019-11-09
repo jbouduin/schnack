@@ -123,7 +123,6 @@ function sendSubscriptionToServer(endpoint, key, auth) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ publicKey: encodedKey, auth: encodedAuth, endpoint })
     }).then(res => {
-        // eslint-disable-next-line no-console
         console.log('Subscribed successfully! ' + JSON.stringify(res));
     });
 }
@@ -137,7 +136,6 @@ function removeSubscriptionFromServer(endpoint) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ publicKey: encodedKey, auth: encodedAuth, endpoint })
     }).then(res => {
-        // eslint-disable-next-line no-console
         console.log('Unsubscribed successfully! ' + JSON.stringify(res));
     });
 }

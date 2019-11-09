@@ -16,9 +16,7 @@ export class WriteLogConsumer implements IWriteLogConsumer {
 
   // constructor
   public constructor(
-    @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService) {
-    console.log('writelog constructor');
-  }
+    @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService) { }
 
   // interface members
   public registerConsumers(): Array<[EventType, ConsumerCallback]> {

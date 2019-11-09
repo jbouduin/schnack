@@ -55,7 +55,7 @@ function initialiseState(reg) {
                 } else {
                     // initialize status, which includes setting UI elements for subscribed status
                     // and updating Subscribers list via push
-                    
+
                 }
             })
             .catch(function (err) {
@@ -81,7 +81,7 @@ function subscribe() {
                 var key = subscription.getKey('p256dh');
                 var auth = subscription.getKey('auth');
                 sendSubscriptionToServer(endpoint, key, auth);
-                
+
             })
             .catch(function (err) {
                 // A problem occurred with the subscription.
@@ -99,7 +99,6 @@ function sendSubscriptionToServer(endpoint, key, auth) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ publicKey: encodedKey, auth: encodedAuth, endpoint: endpoint })
     }).then(function (res) {
-        // eslint-disable-next-line no-console
         console.log('Subscribed successfully! ' + JSON.stringify(res));
     });
 }

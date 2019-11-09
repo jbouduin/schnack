@@ -6,11 +6,10 @@ import * as ExpressSession from 'express-session';
 import { getRepository } from 'typeorm';
 
 import { Session } from './db/entities';
-import { environment } from './environments/environment';
 
 import container from './inversify.config';
 import {
-  IAuthorizationService,
+  IAuthenticationService,
   IConfigurationService,
   IDatabaseService,
   IEventService,
@@ -25,21 +24,39 @@ class App {
 
   public constructor() {
     this.app = express();
+  }
+
+  public async initialize(): Promise<App> {
     this.configurationService = container.get<IConfigurationService>(SERVICETYPES.ConfigurationService);
-    const eventService = container.get<IEventService>(SERVICETYPES.EventService);
-    eventService.initialize(this.app);
-    container.get<IDatabaseService>(SERVICETYPES.DatabaseService)
-      .initialize(this.app)
-      .then(db => {
-        this.config();
-        container.get<IUserService>(SERVICETYPES.UserService).initialize(this.app);
-        return container.get<IAuthorizationService>(SERVICETYPES.AuthorizationService).initialize(this.app);
+    return this.configurationService.initialize(this.app)
+      .then( configuration => {
+        const eventService = container.get<IEventService>(SERVICETYPES.EventService);
+        eventService.initialize(this.app);
+        return container.get<IDatabaseService>(SERVICETYPES.DatabaseService)
+          .initialize(this.app)
+          .then(db => {
+            this.config();
+            return Promise.all([
+              container.get<IUserService>(SERVICETYPES.UserService).initialize(this.app),
+              container.get<IAuthenticationService>(SERVICETYPES.AuthenticationService).initialize(this.app)
+            ]);
+          })
+          .then(all => container.get<IRouteService>(SERVICETYPES.RouteService).initialize(this.app))
+          .then(router => Promise.resolve(this));
       })
-      .then(auth => container.get<IRouteService>(SERVICETYPES.RouteService).initialize(this.app));
+      .catch(err => { throw err; });
+  }
+
+  public start(): void {
+    const port = this.configurationService.environment.server.port;
+    this.app.listen(port, () => {
+        console.log(new Date() + `Express server listening on port ${port}`);
+      });
   }
 
   private config(): void {
-    this.app.use(express.static('build'));
+    this.configurationService.environment.server.serveStatic
+      .forEach(value => this.app.use(express.static(value)));
     this.app.use(cors(
       {
         credentials: true,
@@ -57,12 +74,12 @@ class App {
       {
         cookie: {
           domain: this.configurationService.getSchnackDomain(),
-          secure: environment.schnackProtocol === 'https'
+          secure: this.configurationService.environment.server.protocol === 'https'
         },
         name: 'schnackie',
         resave: true,
         saveUninitialized: false,
-        secret: 'authConfig.secret',
+        secret: this.configurationService.application.secret,
         store: new TypeormStore(
           {
             cleanupLimit: 2,
@@ -75,7 +92,7 @@ class App {
   }
 }
 
-export default new App().app;
+export default new App();
 /*
 const awaiting_moderation = [];
 */

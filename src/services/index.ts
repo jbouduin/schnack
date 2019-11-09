@@ -1,5 +1,5 @@
 export * from './service';
-export * from './authorization.service';
+export * from './authentication.service';
 export * from './comment.service';
 export * from './database.service';
 export * from './event.service';

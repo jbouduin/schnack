@@ -1,11 +1,12 @@
 import { Application } from 'express';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import 'reflect-metadata';
 import { getRepository } from 'typeorm';
 
 import { Comment, User } from '../db/entities';
-import { environment } from '../environments/environment';
+import SERVICETYPES from '../services/service.types';
 
+import { IConfigurationService} from './configuration.service';
 import { IService } from './service';
 
 export interface IUserService extends IService {
@@ -23,6 +24,10 @@ export interface IUserService extends IService {
 @injectable()
 export class UserService implements IUserService {
 
+  // constructor
+  public constructor(
+    @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService) { }
+
   // interface members
   public async blockUser(userId: number): Promise<User> {
     const userRepository = getRepository(User);
@@ -37,7 +42,7 @@ export class UserService implements IUserService {
     const searches = new Array<Promise<number>>();
 
     searches.push(repository.count({ where: { administrator: true } }));
-    if (environment.allowAnonymous) {
+    if (this.configurationService.environment.authentication.allowAnonymous) {
       searches.push(
         repository.count(
           {
@@ -66,7 +71,7 @@ export class UserService implements IUserService {
         } else {
           console.log('found an administrator');
         }
-        if (environment.allowAnonymous) {
+        if (this.configurationService.environment.authentication.allowAnonymous) {
           if (counts[1] === 0) {
             newUsers.push(repository.create(
               {

@@ -1,0 +1,6 @@
+{
+  "hostname": "${process.env.SCHNACK_HOST_NAME || 'localhost'}",
+  "port": "${process.env.SCHNACK_PORT || 8080}",
+  "protocol": "http",
+  "serveStatic": ["build"]
+}

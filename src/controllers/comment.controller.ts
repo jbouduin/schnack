@@ -5,7 +5,7 @@ import 'reflect-metadata';
 import * as rss from 'rss';
 
 import { NewCommentEvent } from '../events';
-import { IAuthorizationService, ICommentService, IConfigurationService, IEventService } from '../services';
+import { IAuthenticationService, ICommentService, IConfigurationService, IEventService } from '../services';
 import { TrfComment, TrfUser } from '../transfer';
 
 import SERVICETYPES from '../services/service.types';
@@ -24,7 +24,7 @@ export interface ICommentController {
 export class CommentController implements ICommentController {
   // constructor
   public constructor(
-    @inject(SERVICETYPES.AuthorizationService) private authorizationService: IAuthorizationService,
+    @inject(SERVICETYPES.AuthenticationService) private authenticationService: IAuthenticationService,
     @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService,
     @inject(SERVICETYPES.CommentService) private commentService: ICommentService,
     @inject(SERVICETYPES.EventService) private eventService: IEventService) {
@@ -94,7 +94,7 @@ export class CommentController implements ICommentController {
           {
             auth: trfUser ?
               null :
-              this.authorizationService.getProviders(),
+              this.authenticationService.getProviders(),
             comments: trfComments,
             slug,
             user: trfUser
@@ -118,7 +118,7 @@ export class CommentController implements ICommentController {
             .getCommentsForModeration()
             .then(comments => {
               const feed = new rss({
-                site_url: this.configurationService.getSchnackHost(),
+                site_url: this.configurationService.getSchnackUrl(),
                 title: 'Awaiting moderation'
               });
               console.log(feed);
