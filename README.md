@@ -1,3 +1,17 @@
+# Typescript port
+I was looking for an embeddable commenting solution and found schnack. Unfortunately, it only offers support for SQLite, which is a personal no-go for production environments.
+As a non JavaScript developer I found no better solution then porting schnackjs to Typescript and implement other database connections myself. I tried to stick to the original js implementation where possible. BTW: I am pretty new to TS also, so don't expect this to be the best code you ever saw.
+
+## the two biggest differences:
+- I did not implement Mastodon as authentication provider, as I don't have the need
+- I implemented a sort of dynamic configuration giving an easy way to configure differently for different environments and an easy way to pass environment variables
+- There is no array of administrators in the configuration files anymore. If you have to go into the database to find out id's, you can go into your database to write an administrator flag in a record as well.
+
+## Additional feature:
+It is possible to post comments anonymously.
+
+#### A lot of the code has not been tested, some features currently don't work and there is a still a lot of clean-up to be done also. I will definitely not do this on this branch.
+
 # schnack.js
 
 [Schnack](https://dict.leo.org/englisch-deutsch/schnack) is a simple Disqus-like drop-in commenting system written in JavaScript.
