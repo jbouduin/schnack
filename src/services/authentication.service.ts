@@ -10,7 +10,7 @@ import * as local from 'passport-local';
 import * as twitter from 'passport-twitter';
 import 'reflect-metadata';
 
-import { Authentication, Provider, ProviderName } from '../core/configuration';
+import { Authentication, Provider, ProviderName } from '../configuration';
 import SERVICETYPES from '../services/service.types';
 
 import { IConfigurationService} from './configuration.service';

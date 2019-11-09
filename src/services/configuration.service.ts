@@ -5,7 +5,7 @@ import * as moment from 'moment';
 import * as path from 'path';
 import 'reflect-metadata';
 
-import { Application, Configuration, Environment } from '../core/configuration';
+import { Application, Configuration, Environment } from '../configuration';
 import { IService } from './service';
 
 export interface IConfigurationService extends IService {
