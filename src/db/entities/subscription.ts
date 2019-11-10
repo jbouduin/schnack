@@ -1,8 +1,9 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { CreateDateColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
+
+import { BaseEntity } from './base-entity';
 
 @Entity()
-export class Subscription {
+export class Subscription extends BaseEntity {
   @PrimaryColumn('nvarchar', { length: 600, nullable: false })
   public endpoint: string;
 

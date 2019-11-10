@@ -1,13 +1,14 @@
 import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CreateDateColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
 
+import { BaseEntity } from './base-entity';
 import { Comment } from './comment';
 
 // TODO until we find the time to change this
 /* tslint:disable variable-name */
 @Entity()
 @Index(['provider', 'provider_id'], { unique: true })
-export class User {
+export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -26,9 +27,11 @@ export class User {
   @Column({ default: false })
   public administrator: boolean;
 
+  @Index()
   @Column({ default: false })
   public blocked: boolean;
 
+  @Index()
   @Column({ default: false })
   public trusted: boolean;
 
@@ -38,12 +41,4 @@ export class User {
   @OneToMany(type => Comment, comment => comment.user)
   public comments: Promise<Array<Comment>>;
 
-  @CreateDateColumn()
-  public created: Date;
-
-  @UpdateDateColumn()
-  public modified: Date;
-
-  @VersionColumn()
-  public version: number;
 }
