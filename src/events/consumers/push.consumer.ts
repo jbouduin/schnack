@@ -37,10 +37,19 @@ export class PushConsumer implements IPushConsumer {
 
     if (this.configurationService.environment.notification.webpush ||
       this.configurationService.environment.notification.pushover) {
+      this.initialize();
+    }
+
+    if (this.notifiers.length) {
+
       result.push([EventType.COMMENTAPPROVED, this.CommentApprovedOrRejectedCallBack]);
       result.push([EventType.COMMENTPOSTED, this.CommentPostedCallBack]);
       result.push([EventType.COMMENTREJECTED, this.CommentApprovedOrRejectedCallBack]);
-      this.initialize();
+      setInterval(
+        this.push,
+        this.configurationService.environment.notification.interval,
+        this);
+
     }
     return result;
   }
@@ -69,90 +78,106 @@ export class PushConsumer implements IPushConsumer {
     this.notifiers = new Array<Notifier>();
     // fill awaiting at startup
     this.commentService
-      .getCommentsForModeration().then(comments => {
+      .getCommentsForModeration()
+      .then(comments => {
         this.awaitingModeration = comments;
-        if (this.configurationService.environment.notification.webpush) {
-          this.initializeWebPush();
-        }
-        if (this.configurationService.environment.notification.pushover) {
-          this.initializePushover();
-        }
-        setInterval(
-          this.push,
-          this.configurationService.environment.notification.interval,
-          this);
       });
+    if (this.configurationService.environment.notification.webpush) {
+      this.initializeWebPush();
+    }
+    if (this.configurationService.environment.notification.pushover) {
+      this.initializePushover();
+    }
   }
 
   private initializePushover(): void {
-    const pusher = new pushover({
-        token: this.configurationService.environment.notification.pushover.appToken,
-        user: this.configurationService.environment.notification.pushover.userKey
-    });
-    // TODO: regularly call pushover to make sure that we stay connected
-    this.notifiers.push((msg, callback) => pusher.send(msg, callback));
+    if (this.configurationService.isNotNullOrEmpty(this.configurationService.environment.notification.pushover.appToken) &&
+      this.configurationService.isNotNullOrEmpty(this.configurationService.environment.notification.pushover.userKey)) {
+
+      const pusher = new pushover({
+          token: this.configurationService.environment.notification.pushover.appToken,
+          user: this.configurationService.environment.notification.pushover.userKey
+      });
+      // TODO: regularly call pushover to make sure that we stay connected
+      this.notifiers.push((msg, callback) => {
+        try {
+          pusher.send(msg, callback);
+        } catch (err) {
+          console.log('error pushing to pushover:');
+          console.log(err);
+        }
+      });
+    }
   }
 
   private initializeWebPush(): void {
-    try {
-      webpush.setVapidDetails(
-        this.configurationService.getSchnackUrl(),
-        this.configurationService.environment.notification.webpush.publicKey,
-        this.configurationService.environment.notification.webpush.privateKey
-      );
-      this.notifiers.push((msg, callback) => {
-        this.subscriptionService.getSubscriptions()
-          .then(subscriptions => {
-            subscriptions.forEach(subscription => {
-              console.log(`Webpush to ${subscription.endpoint}`);
-              webpush.sendNotification(
-                {
-                  endpoint: subscription.endpoint,
-                  keys: {
-                    p256dh: subscription.publicKey,
-                    auth: subscription.auth
-                  }
-                },
-                JSON.stringify({
-                  title: 'schnack',
-                  message: msg.message,
-                  clickTarget: msg.url
-                })
-              );
-            })
-            //callback;
+    if (!this.configurationService.isNotNullOrEmpty(this.configurationService.environment.notification.webpush.publicKey) &&
+      !this.configurationService.isNotNullOrEmpty(this.configurationService.environment.notification.webpush.privateKey)) {
+      try {
+        webpush.setVapidDetails(
+          this.configurationService.getSchnackUrl(),
+          this.configurationService.environment.notification.webpush.publicKey,
+          this.configurationService.environment.notification.webpush.privateKey
+        );
+        this.notifiers.push((msg, callback) => {
+          this.subscriptionService.getSubscriptions()
+            .then(subscriptions => {
+              subscriptions.forEach(subscription => {
+                console.log(`Webpush to ${subscription.endpoint}`);
+                webpush.sendNotification(
+                  {
+                    endpoint: subscription.endpoint,
+                    keys: {
+                      p256dh: subscription.publicKey,
+                      auth: subscription.auth
+                    }
+                  },
+                  JSON.stringify({
+                    title: 'schnack',
+                    message: msg.message,
+                    clickTarget: msg.url
+                  })
+                );
+              })
+              //callback;
+            });
           });
-        });
-    } catch (err) {
-      console.log('could not initialize webpush: ');
-      console.log(err);
+      } catch (err) {
+        console.log('could not initialize webpush: ');
+        console.log(err);
+      }
     }
   }
 
   private push(pushConsumer: PushConsumer): void {
-    console.log(new Date() + ' push');
-    let bySlug;
-    if (pushConsumer.awaitingModeration.length) {
-      bySlug = _.countBy(pushConsumer.awaitingModeration, 'slug');
-      const slugs = Object.keys(bySlug);
-      slugs.forEach(slug => {
-        const cnt = bySlug[slug];
-        const msg = {
-          message: `${cnt} new comment${cnt > 1 ? 's' : ''} on "${slug}" are awaiting moderation.`,
-          url: pushConsumer.configurationService.getPageUrl().replace('%SLUG%', slug)
-          //sound: !!row.active ? 'pushover' : 'none'
-        };
-        console.log(msg.message);
-        pushConsumer.notifiers.forEach(notifier => {
-          try {
-            notifier(msg, null);
-          } catch (err) {
-            console.log(err);
-          }
+    try {
+      console.log(new Date() + ' push');
+      let bySlug;
+      if (pushConsumer.awaitingModeration.length) {
+        bySlug = _.countBy(pushConsumer.awaitingModeration, 'slug');
+        const slugs = Object.keys(bySlug);
+        slugs.forEach(slug => {
+          const cnt = bySlug[slug];
+          const msg = {
+            message: `${cnt} new comment${cnt > 1 ? 's' : ''} on "${slug}" are awaiting moderation.`,
+            url: pushConsumer.configurationService.getPageUrl().replace('%SLUG%', slug)
+            //sound: !!row.active ? 'pushover' : 'none'
+          };
+          console.log(msg.message);
+          pushConsumer.notifiers.forEach(notifier => {
+            try {
+              notifier(msg, null);
+            } catch (err) {
+              console.log(err);
+            }
+          });
         });
-      });
-    } else {
-      console.log('nothing queued for push');
+      } else {
+        console.log('nothing queued for push');
+      }
+    } catch (err) {
+      console.log('error in push:');
+      console.log(err);
     }
   }
 }
