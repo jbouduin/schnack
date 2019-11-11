@@ -37,7 +37,9 @@ export class ConfigurationService implements IConfigurationService {
   }
 
   public getPageUrl(): string {
-    return 'todo %SLUG%';
+    const url = `${this.environment.client.protocol}/${this.environment.client.hostname}`;
+    const port = this.environment.client.port ? `:${this.environment.client.port}` : '';
+    return `${url}${port}${this.environment.client.pathToPage}/%SLUG%`;
   }
 
   public getSchnackDomain(): string {
