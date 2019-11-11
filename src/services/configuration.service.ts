@@ -5,12 +5,13 @@ import * as moment from 'moment';
 import * as path from 'path';
 import 'reflect-metadata';
 
-import { Application, Configuration, Environment } from '../configuration';
+import { Application, Configuration, Environment, Notification } from '../configuration';
 import { IService } from './service';
 
 export interface IConfigurationService extends IService {
   application: Application;
   environment: Environment;
+
   formatDate(rawDate: any): string;
   getPageUrl(): string;
   getSchnackDomain(): string;
@@ -68,6 +69,8 @@ export class ConfigurationService implements IConfigurationService {
     this.configuration = await Configuration.loadConfiguration();
     this.environment = this.configuration.current;
     this.application = this.configuration.application;
+
+    console.log(this.configuration);
     return Promise.resolve(this.configuration);
   }
 

@@ -1,0 +1,14 @@
+{
+  "interval": 10000,
+  "pushover": {
+    "appToken": "xxxxx",
+    "userKey": "xxxxx"
+  },
+  "slack": {
+    "webHookUrl": "xxxxx"
+  },
+  "webpush": {
+    "publicKey": "xxxxx",
+    "privateKey": "xxxxx"
+  }
+}

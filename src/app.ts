@@ -32,13 +32,12 @@ class App {
     this.databaseService = container.get<IDatabaseService>(SERVICETYPES.DatabaseService);
     return this.configurationService.initialize(this.app)
       .then( configuration => {
-        const eventService = container.get<IEventService>(SERVICETYPES.EventService);
-        eventService.initialize(this.app);
         return this.databaseService
           .initialize(this.app)
           .then(db => {
             this.config();
             return Promise.all([
+              container.get<IEventService>(SERVICETYPES.EventService).initialize(this.app),
               container.get<IUserService>(SERVICETYPES.UserService).initialize(this.app),
               container.get<IAuthenticationService>(SERVICETYPES.AuthenticationService).initialize(this.app)
             ]);
@@ -52,7 +51,7 @@ class App {
   public start(): void {
     const port = this.configurationService.environment.server.port;
     this.app.listen(port, () => {
-        console.log(new Date() + `Express server listening on port ${port}`);
+        console.log(new Date() + ` Express server listening on port ${port}`);
       });
   }
 

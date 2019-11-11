@@ -6,6 +6,7 @@ import SERVICETYPES from './services/service.types';
 
 /* tslint:disable ordered-imports */
 // consumers
+import { IPushConsumer, PushConsumer } from './events/consumers';
 import { IWriteLogConsumer, WriteLogConsumer } from './events/consumers';
 
 // controllers
@@ -28,6 +29,7 @@ import { IUserService, UserService } from './services';
 const container = new Container();
 
 // Consumers
+container.bind<IPushConsumer>(CONSUMERTYPES.PushConsumer).to(PushConsumer).inSingletonScope();
 container.bind<IWriteLogConsumer>(CONSUMERTYPES.WriteLogConsumer).to(WriteLogConsumer).inSingletonScope();
 // controllers
 container.bind<ICommentController>(CONTROLLERTYPES.CommentController).to(CommentController);

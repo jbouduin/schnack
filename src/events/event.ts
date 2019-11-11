@@ -1,6 +1,8 @@
 export enum EventType {
-    NewComment = 'new-comment',
-    Unknown = ''
+  COMMENTAPPROVED = 'comment-approved',
+  COMMENTPOSTED = 'comment-posted',
+  COMMENTREJECTED = 'comment-rejected',
+  UNKNOWN = ''
 }
 
 export interface IEvent {

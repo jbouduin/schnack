@@ -4,7 +4,7 @@ import * as marked from 'marked';
 import 'reflect-metadata';
 import * as rss from 'rss';
 
-import { NewCommentEvent } from '../events';
+import { CommentApprovedEvent, CommentPostedEvent, CommentRejectedEvent } from '../events';
 import { IAuthenticationService, ICommentService, IConfigurationService, IEventService } from '../services';
 import { TrfComment, TrfUser } from '../transfer';
 
@@ -45,7 +45,10 @@ export class CommentController implements ICommentController {
         } else {
           this.commentService
             .approveComment(commentId)
-            .then(comment => response.send({ status: 'ok' }))
+            .then(comment => {
+              this.eventService.postEvent(new CommentApprovedEvent(comment));
+              response.send({ status: 'ok' });
+            })
             .catch(err => {
               console.log(err);
               response.sendStatus(500);
@@ -167,7 +170,7 @@ export class CommentController implements ICommentController {
               request.body.comment
             )
             .then(result => {
-              this.eventService.postEvent(new NewCommentEvent(result));
+              this.eventService.postEvent(new CommentPostedEvent(result));
               response.send({ status: 'ok', id: result.id });
             })
             .catch(err => {
@@ -192,7 +195,10 @@ export class CommentController implements ICommentController {
         } else {
           this.commentService
             .rejectComment(commentId)
-            .then(comment => response.send({ status: 'ok' }))
+            .then(comment => {
+              this.eventService.postEvent(new CommentRejectedEvent(comment));
+              response.send({ status: 'ok' });
+            })
             .catch(err => {
               console.log(err);
               response.sendStatus(500);

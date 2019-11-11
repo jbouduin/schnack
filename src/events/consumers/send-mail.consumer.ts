@@ -12,6 +12,8 @@ import SERVICETYPES from '../../services/service.types';
 
 export interface ISendMailConsumer extends IConsumer { }
 
+
+// TODO get parameters from configuration
 export class SendMailConsumer implements ISendMailConsumer {
   private sendmail = {
     from: null,
@@ -26,13 +28,13 @@ export class SendMailConsumer implements ISendMailConsumer {
   public registerConsumers(): Array<[EventType, ConsumerCallback]> {
     const result = new Array<[EventType, ConsumerCallback]>();
     if (this.sendmail.to && this.sendmail.from) {
-      result.push([EventType.NewComment, this.newCommentCallBack]);
+      result.push([EventType.COMMENTPOSTED, this.CommentPostedCallBack]);
     }
     return result;
   }
 
   // callback method
-  private newCommentCallBack(comment: Comment): void {
+  private CommentPostedCallBack(comment: Comment): void {
     try {
       const sendmail = null; // TODO spawn('sendmail', [this.sendmail.to]);
       sendmail.stdin.write(this.createEmailBody(comment));

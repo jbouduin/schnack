@@ -24,14 +24,14 @@ export class SlackConsumer implements ISlackConsumer {
   // interface members
   public registerConsumers(): Array<[EventType, ConsumerCallback]> {
     const result = new Array<[EventType, ConsumerCallback]>();
-    if (this.webHookUrl) {
-      result.push([EventType.NewComment, this.newCommentCallBack]);
+    if (this.configurationService.environment.notification.slack.webHookUrl) {
+      result.push([EventType.COMMENTPOSTED, this.CommentPostedCallBack]);
     }
     return result;
   }
 
   // callback method
-  private newCommentCallBack(comment: Comment): void {
+  private CommentPostedCallBack(comment: Comment): void {
     try {
       const postUrl = this.configurationService.getPageUrl().replace('%SLUG%', comment.slug);
       const user = comment.user.display_name || comment.user.name;
@@ -44,7 +44,7 @@ export class SlackConsumer implements ISlackConsumer {
         body: { text },
         json: true,
         method: 'post',
-        url: this.webHookUrl
+        url: this.configurationService.environment.notification.slack.webHookUrl
       });
     } catch (error) {
       console.error('Error sending slack notification:', error);

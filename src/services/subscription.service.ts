@@ -11,6 +11,7 @@ import { IService } from './service';
 import SERVICETYPES from './service.types';
 
 export interface ISubscriptionService extends IService {
+  getSubscriptions(): Promise<Array<Subscription>>;
   subscribe(endpoint: string, publicKey: string, auth: string): Promise<Subscription>;
   unsubscribe(endpoint: string): Promise<DeleteResult>;
 }
@@ -25,6 +26,13 @@ export class SubscriptionService implements ISubscriptionService {
   // interface methods
   public async initialize(app: Application): Promise<any> {
     return Promise.resolve(true);
+  }
+
+  public async getSubscriptions(): Promise<Array<Subscription>> {
+    return this.databaseService
+      .getSubscriptionRepository()
+      .createQueryBuilder('subscription')
+      .getMany();
   }
 
   public async subscribe(endpoint: string, publicKey: string, auth: string): Promise<Subscription> {

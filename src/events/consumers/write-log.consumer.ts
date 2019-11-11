@@ -11,6 +11,7 @@ import SERVICETYPES from '../../services/service.types';
 
 export interface IWriteLogConsumer extends IConsumer { }
 
+// TODO get parameters from configuration
 @injectable()
 export class WriteLogConsumer implements IWriteLogConsumer {
 
@@ -21,12 +22,12 @@ export class WriteLogConsumer implements IWriteLogConsumer {
   // interface members
   public registerConsumers(): Array<[EventType, ConsumerCallback]> {
     const result = new Array<[EventType, ConsumerCallback]>();
-    result.push([EventType.NewComment, this.newCommentCallBack]);
+    result.push([EventType.COMMENTPOSTED, this.CommentPostedCallBack]);
     return result;
   }
 
   // callback method
-  private newCommentCallBack(comment: Comment): void {
-    console.log(`event: ${EventType.NewComment} on slug '${comment.slug}'' by '${comment.user.display_name || comment.user.name}''`);
+  private CommentPostedCallBack(comment: Comment): void {
+    console.log(`event: ${EventType.COMMENTPOSTED} on slug '${comment.slug}'' by '${comment.user.display_name || comment.user.name}''`);
   }
 }

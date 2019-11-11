@@ -4,7 +4,7 @@ import * as express from 'express';
 import { inject, injectable } from 'inversify';
 
 import { EventType, IEvent } from '../events';
-import { ISendMailConsumer, ISlackConsumer, IWriteLogConsumer } from '../events/consumers';
+import { IPushConsumer, ISendMailConsumer, ISlackConsumer, IWriteLogConsumer } from '../events/consumers';
 
 import { IConfigurationService} from './configuration.service';
 import { IService } from './service';
@@ -21,14 +21,17 @@ export class EventService implements IEventService {
 
   private emitter: EventEmitter;
 
+  // TODO inject a consumer factory instead of all consumers and let the factory use constructors
   // constructor
   public constructor(
-    @inject(CONSUMERTYPES.WriteLogConsumer) private writeLogConsumer: IWriteLogConsumer,
-    @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService) { }
+    @inject(SERVICETYPES.ConfigurationService) private configurationService: IConfigurationService,
+    @inject(CONSUMERTYPES.PushConsumer) private pushConsumer: IPushConsumer,
+    @inject(CONSUMERTYPES.WriteLogConsumer) private writeLogConsumer: IWriteLogConsumer) { }
 
   // interface members
   public async initialize(app: express.Application): Promise<any> {
     this.emitter = new EventEmitter();
+    this.pushConsumer.registerConsumers().forEach(consumer => this.emitter.on(consumer[0], consumer[1]));
     this.writeLogConsumer.registerConsumers().forEach(consumer => this.emitter.on(consumer[0], consumer[1]));
     return Promise.resolve(true);
   }
