@@ -1,6 +1,6 @@
 {
-  "hostname": "${process.env.SCHNACK_HOST_NAME || 'localhost'}",
+  "hostname": "${process.env.EMBEDDING_HOST_NAME || 'localhost'}",
   "pathToPage": "/",
-  "port": "${process.env.SCHNACK_PORT || 8080}",
+  "port": "${process.env.EMBEDDING_PORT || 8080}",
   "protocol": "http"
 }

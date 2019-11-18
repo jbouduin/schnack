@@ -1,14 +1,14 @@
 {
-  "interval": 10000,
+  "interval": "${process.env.SCNACK_NOTIFICATION_INTERVAL || '' }",
   "pushover": {
-    "appToken": "xxxxx",
-    "userKey": "xxxxx"
+    "appToken": "${process.env.PUSHOVER_APPTOKEN || '' }",
+    "userKey": "${process.env.PUSHOVER_USERKEY || '' }"
   },
   "slack": {
-    "webHookUrl": "xxxxx"
+    "webHookUrl": "${process.env.SLACK_WEBHOOK || '' }"
   },
   "webpush": {
-    "publicKey": "xxxxx",
-    "privateKey": "xxxxx"
+    "publicKey": "${process.env.WEBPUSH_PUBLIC_KEY || '' }",
+    "privateKey": "${process.env.WEBPUSH_PRIVATE_KEY || '' }"
   }
 }

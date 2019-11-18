@@ -1,15 +1,15 @@
 {
-  "from": "system@schnack",
-  "to": "admin@schnack",
-  "mailProtocol": "nomail",
+  "from": "${process.env.SCHNACK_MAIL_FROM || 'system@schnack' }",
+  "to": "${process.env.SCHNACK_MAIL_TO || 'system@schnack' }",
+  "mailProtocol": "${process.env.SCHNACK_MAIL || 'nomail' }",
   "sendMail": {
-    "path": "/usr/sbin/sendmail"
+    "path": "${process.env.SENDMAIL_PATH || '/usr/sbin/sendmail' }"
   },
   "smtp": {
-    "host":  "smtp.example.com",
-    "password": "password",
-    "port": 465,
-    "secure": true,
-    "user": "user"
+    "host":  "${process.env.SMTP_HOST || '' }",
+    "password": "${process.env.SMTP_PWD || '' }",
+    "port": "${process.env.SMTP_PORT || 465 }",
+    "secure": "${process.env.SMTP_SECURE || true }",
+    "user": "${process.env.SMTP_USR || '' }"
   }
 }

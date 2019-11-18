@@ -11,16 +11,20 @@
   "connections": [
     {
       "connectionName": "sessions",
-      "databaseName": "sessions",
-      "connectionType": "sqlite"
+      "databaseName": "${process.env._SESSIONSDB_NAME || 'sessions' }",
+      "connectionType": "${process.env.SESSIONSDB_TYPE || 'sqlite' }",
+      "hostName": "${process.env.SESSIONSSDB_HOST || 'localhost' }",
+      "port": "${process.env.SESSIONSDB_PORT || '' }",
+      "user": "${process.env.SESSIONSDB_USR || '' }",
+      "password": "${process.env.SESSIONSDB_PWD || '' }"
     }, {
       "connectionName": "comments",
-      "databaseName": "comments",
-      "connectionType": "mysql",
-      "hostName": "${process.env.SCHNACK_COMMENTSDB_HOST || 'localhost' }",
-      "port": "${process.env.SCHNACK_COMMENTSDB_PORT || 3306 }",
-      "user": "${process.env.SCHNACK_COMMENTSDB_USR || '' }",
-      "password": "${process.env.SCHNACK_COMMENTSDB_PWD || '' }"
+      "databaseName": "${process.env._COMMENTSDB_NAME || 'comments' }",
+      "connectionType": "${process.env.COMMENTSDB_TYPE || 'mysql' }",
+      "hostName": "${process.env.COMMENTSDB_HOST || 'localhost' }",
+      "port": "${process.env.COMMENTSDB_PORT || 3306 }",
+      "user": "${process.env.COMMENTSDB_USR || '' }",
+      "password": "${process.env.COMMENTSDB_PWD || '' }"
     }
   ]
 }

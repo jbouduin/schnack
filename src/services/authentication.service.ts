@@ -111,7 +111,9 @@ export class AuthenticationService implements IAuthenticationService {
       this.initializeAnonymus(router);
     }
 
-    this.configurationService.environment.authentication.providers.forEach(provider => {
+    this.configurationService.environment.authentication.providers
+    .filter(provider => provider.id && provider.secret)
+    .forEach(provider => {
       switch (provider.name) {
         case ProviderName.TWITTER: {
           this.initializeTwitter(router, provider);
