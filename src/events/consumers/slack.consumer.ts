@@ -24,8 +24,7 @@ export class SlackConsumer implements ISlackConsumer {
   // interface members
   public registerConsumers(): Array<[EventType, ConsumerCallback]> {
     const result = new Array<[EventType, ConsumerCallback]>();
-    if (this.configurationService.isNotNullOrEmpty(this.configurationService.environment.notification.slack.webHookUrl) &&
-      this.configurationService.isValidUrl(this.configurationService.environment.notification.slack.webHookUrl)) {
+    if (this.configurationService.isValidUrl(this.configurationService.environment.notification.slack.webHookUrl)) {
       result.push([EventType.COMMENTPOSTED, this.CommentPostedCallBack]);
     }
     return result;

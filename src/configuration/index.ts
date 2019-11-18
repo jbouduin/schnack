@@ -13,6 +13,10 @@ export * from './environment/client';
 export * from './environment/environment';
 export * from './environment/server';
 
+export * from './mail/mail';
+export * from './mail/send-mail';
+export * from './mail/smtp';
+
 export * from './notification/notification';
 export * from './notification/pushover';
 export * from './notification/slack';

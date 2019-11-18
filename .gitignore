@@ -43,3 +43,5 @@ testem.log
 Thumbs.db
 comments.sqlite
 sessions.sqlite
+configuration/environments/development/notification.json
+configuration/environments/development/notification.json

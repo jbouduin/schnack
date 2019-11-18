@@ -91,8 +91,8 @@ export class PushConsumer implements IPushConsumer {
   }
 
   private initializePushover(): void {
-    if (this.configurationService.isNotNullOrEmpty(this.configurationService.environment.notification.pushover.appToken) &&
-      this.configurationService.isNotNullOrEmpty(this.configurationService.environment.notification.pushover.userKey)) {
+    if (this.configurationService.environment.notification.pushover.appToken &&
+      this.configurationService.environment.notification.pushover.userKey) {
 
       const pusher = new pushover({
           token: this.configurationService.environment.notification.pushover.appToken,
@@ -111,8 +111,8 @@ export class PushConsumer implements IPushConsumer {
   }
 
   private initializeWebPush(): void {
-    if (!this.configurationService.isNotNullOrEmpty(this.configurationService.environment.notification.webpush.publicKey) &&
-      !this.configurationService.isNotNullOrEmpty(this.configurationService.environment.notification.webpush.privateKey)) {
+    if (this.configurationService.environment.notification.webpush.publicKey &&
+      this.configurationService.environment.notification.webpush.privateKey) {
       try {
         webpush.setVapidDetails(
           this.configurationService.getSchnackUrl(),
@@ -128,18 +128,18 @@ export class PushConsumer implements IPushConsumer {
                   {
                     endpoint: subscription.endpoint,
                     keys: {
-                      p256dh: subscription.publicKey,
-                      auth: subscription.auth
+                      auth: subscription.auth,
+                      p256dh: subscription.publicKey
                     }
                   },
                   JSON.stringify({
-                    title: 'schnack',
+                    clickTarget: msg.url,
                     message: msg.message,
-                    clickTarget: msg.url
+                    title: 'schnack'
                   })
                 );
-              })
-              //callback;
+              });
+              // callback;
             });
           });
       } catch (err) {
@@ -161,7 +161,7 @@ export class PushConsumer implements IPushConsumer {
           const msg = {
             message: `${cnt} new comment${cnt > 1 ? 's' : ''} on "${slug}" are awaiting moderation.`,
             url: pushConsumer.configurationService.getPageUrl().replace('%SLUG%', slug)
-            //sound: !!row.active ? 'pushover' : 'none'
+            // sound: !!row.active ? 'pushover' : 'none'
           };
           console.log(msg.message);
           pushConsumer.notifiers.forEach(notifier => {

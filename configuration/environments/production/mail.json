@@ -1,0 +1,15 @@
+{
+  "from": "system@schnack",
+  "to": "admin@schnack",
+  "mailProtocol": "nomail",
+  "sendMail": {
+    "path": "/usr/sbin/sendmail"
+  },
+  "smtp": {
+    "host":  "smtp.example.com",
+    "password": "password",
+    "port": 465,
+    "secure": true,
+    "user": "user"
+  }
+}
