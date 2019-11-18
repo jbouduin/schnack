@@ -14,6 +14,7 @@ import SERVICETYPES from '../../services/service.types';
 
 export interface ISendMailConsumer extends IConsumer { }
 
+@injectable()
 export class SendMailConsumer implements ISendMailConsumer {
 
   // constructor

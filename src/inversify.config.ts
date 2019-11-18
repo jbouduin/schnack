@@ -6,7 +6,10 @@ import SERVICETYPES from './services/service.types';
 
 /* tslint:disable ordered-imports */
 // consumers
+
 import { IPushConsumer, PushConsumer } from './events/consumers';
+import { ISendMailConsumer, SendMailConsumer } from './events/consumers';
+import { ISlackConsumer, SlackConsumer } from './events/consumers';
 import { IWriteLogConsumer, WriteLogConsumer } from './events/consumers';
 
 // controllers
@@ -30,6 +33,8 @@ const container = new Container();
 
 // Consumers
 container.bind<IPushConsumer>(CONSUMERTYPES.PushConsumer).to(PushConsumer).inSingletonScope();
+container.bind<ISendMailConsumer>(CONSUMERTYPES.SendMailConsumer).to(SendMailConsumer).inSingletonScope();
+container.bind<ISlackConsumer>(CONSUMERTYPES.SlackConsumer).to(SlackConsumer).inSingletonScope();
 container.bind<IWriteLogConsumer>(CONSUMERTYPES.WriteLogConsumer).to(WriteLogConsumer).inSingletonScope();
 // controllers
 container.bind<ICommentController>(CONTROLLERTYPES.CommentController).to(CommentController);

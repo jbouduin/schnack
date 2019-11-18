@@ -13,6 +13,7 @@ import SERVICETYPES from '../../services/service.types';
 
 export interface ISlackConsumer extends IConsumer { }
 
+@injectable()
 export class SlackConsumer implements ISlackConsumer {
 
   private webHookUrl = null;
