@@ -2,7 +2,7 @@
 I was looking for an embeddable commenting solution and found schnack. Unfortunately, it only offers support for SQLite, which is a personal no-go for production environments.
 As a non JavaScript developer I found no better solution then porting schnackjs to Typescript and implement other database connections myself. I tried to stick to the original js implementation where possible. BTW: I am pretty new to TS also, so don't expect this to be the best code you ever saw.
 
-## the two biggest differences:
+## the three biggest differences:
 - I did not implement Mastodon as authentication provider, as I don't have the need
 - I implemented a sort of dynamic configuration giving an easy way to configure differently for different environments and an easy way to pass environment variables
 - There is no array of administrators in the configuration files anymore. If you have to go into the database to find out id's, you can go into your database to write an administrator flag in a record as well.
