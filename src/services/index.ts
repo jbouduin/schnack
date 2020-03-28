@@ -7,3 +7,4 @@ export * from './configuration.service';
 export * from './route.service';
 export * from './subscription.service';
 export * from './user.service';
+export * from './vapid.service';

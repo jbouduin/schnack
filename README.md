@@ -103,6 +103,7 @@ You will find further information on the [schnack page](https://schnack.cool/).
 * rss
 * sendmail
 
+to use webpush: generate keys by running npx web-push generate-vapid-keys
 ### Who is behind Schnack?
 
 Schnack is [yet another](https://github.com/gka/canvid/) happy collaboration between [Webkid](https://webkid.io/) and [Gregor Aisch](https://www.vis4.net).

@@ -13,7 +13,8 @@ import {
   IDatabaseService,
   IEventService,
   IRouteService,
-  IUserService } from './services';
+  IUserService,
+  IVapidService } from './services';
 import SERVICETYPES from './services/service.types';
 
 class App {
@@ -39,11 +40,12 @@ class App {
             return Promise.all([
               container.get<IEventService>(SERVICETYPES.EventService).initialize(this.app),
               container.get<IUserService>(SERVICETYPES.UserService).initialize(this.app),
-              container.get<IAuthenticationService>(SERVICETYPES.AuthenticationService).initialize(this.app)
+              container.get<IAuthenticationService>(SERVICETYPES.AuthenticationService).initialize(this.app),
+              container.get<IVapidService>(SERVICETYPES.VapidService).initialize(this.app)
             ]);
           })
           .then(all => container.get<IRouteService>(SERVICETYPES.RouteService).initialize(this.app))
-          .then(router => Promise.resolve(this));
+          .then(vp => Promise.resolve(this));
       })
       .catch(err => { throw err; });
   }
@@ -56,12 +58,13 @@ class App {
   }
 
   private config(): void {
+    container.get<IVapidService>(SERVICETYPES.VapidService).initialize(this.app);
     this.configurationService.environment.server.serveStatic
       .forEach(value => this.app.use(express.static(value)));
     this.app.use(cors(
       {
         credentials: true,
-        origin: true
+        origin: this.configurationService.checkOrigin
       })
     );
 

@@ -17,8 +17,8 @@ import { ICommentController, CommentController } from './controllers';
 import { IHomeController, HomeController } from './controllers';
 import { ISubscriptionController, SubscriptionController } from './controllers';
 import { IUserController, UserController } from './controllers';
-// services
 
+// services
 import { IAuthenticationService, AuthenticationService } from './services';
 import { ICommentService, CommentService } from './services';
 import { IDatabaseService, DatabaseService } from './services';
@@ -27,6 +27,7 @@ import { IConfigurationService, ConfigurationService } from './services';
 import { IRouteService, RouteService } from './services';
 import { ISubscriptionService, SubscriptionService } from './services';
 import { IUserService, UserService } from './services';
+import { IVapidService, VapidService} from './services';
 /* tslint:enable ordered-imports */
 
 const container = new Container();
@@ -51,5 +52,5 @@ container.bind<IEventService>(SERVICETYPES.EventService).to(EventService).inSing
 container.bind<IRouteService>(SERVICETYPES.RouteService).to(RouteService).inSingletonScope();
 container.bind<ISubscriptionService>(SERVICETYPES.SubscriptionService).to(SubscriptionService);
 container.bind<IUserService>(SERVICETYPES.UserService).to(UserService);
-
+container.bind<IVapidService>(SERVICETYPES.VapidService).to(VapidService).inSingletonScope();
 export default container;

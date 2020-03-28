@@ -12,11 +12,13 @@ export interface IConfigurationService extends IService {
   application: Application;
   environment: Environment;
 
+  checkOrigin(origin, callback);
   formatDate(rawDate: any): string;
   getPageUrl(): string;
   getSchnackDomain(): string;
   getSchnackUrl(): string;
   isValidUrl(value: string);
+
 }
 
 @injectable()
@@ -27,6 +29,19 @@ export class ConfigurationService implements IConfigurationService {
   public environment: Environment;
 
   private configuration: Configuration;
+
+  public checkOrigin(origin, callback) {
+      // origin is allowed
+      if (
+          typeof origin === 'undefined' ||
+          `.${new URL(origin).hostname}`.endsWith(`.${this.environment.server.hostname}`)
+      ) {
+          return callback(null, true);
+      }
+
+      callback(new Error('Not allowed by CORS'));
+  }
+
   public formatDate(rawDate: any): string {
     const m = moment.utc(rawDate);
     if (this.application.dateFormat && this.application.dateFormat !== '') {

@@ -6,7 +6,8 @@ const SERVICETYPES = {
   EventService: Symbol('EventService'),
   RouteService: Symbol('RouteService'),
   SubscriptionService: Symbol('SubscriptionService'),
-  UserService: Symbol('UserService')
+  UserService: Symbol('UserService'),
+  VapidService: Symbol('VapidService')
 };
 
 export default SERVICETYPES;
