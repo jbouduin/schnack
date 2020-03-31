@@ -45,11 +45,12 @@ export class PushConsumer implements IPushConsumer {
       result.push([EventType.COMMENTAPPROVED, this.CommentApprovedOrRejectedCallBack]);
       result.push([EventType.COMMENTPOSTED, this.CommentPostedCallBack]);
       result.push([EventType.COMMENTREJECTED, this.CommentApprovedOrRejectedCallBack]);
-      setInterval(
-        this.push,
-        this.configurationService.environment.notification.interval,
-        this);
-
+      if (this.configurationService.environment.notification.interval > 0) {
+        setInterval(
+          this.push,
+          this.configurationService.environment.notification.interval,
+          this);
+      }
     }
     return result;
   }

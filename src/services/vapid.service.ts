@@ -29,8 +29,10 @@ export class VapidService implements IVapidService {
   // private methods
   checkRequest(request: Request, response: Response) {
     if (request.path === '/push.js') {
+      console.log(`will modify ${request.path}`)
       return true;
     }
+    console.log(`will not modify ${request.path}`)
     return false;
   }
 

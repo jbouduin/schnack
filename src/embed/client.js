@@ -153,31 +153,21 @@ export default class Schnack {
                   'resizable,scrollbars,status,width=600,height=500'
                 );
                 window.__schnack_wait_for_oauth = () => {
-                  windowRef.close();
+                  // windowRef.close();
                   this.refresh();
                 };
               };
               if (provider.id === 'anonymous') {
-                var form = document.createElement("form");
-                form.setAttribute("method", "POST");
-                form.setAttribute("action", `${host}/auth/${provider.id}`);
-
-                var addField = function( key, value ) {
-                  var hiddenField = document.createElement("input");
-                  hiddenField.setAttribute("type", "hidden");
-                  hiddenField.setAttribute("name", key);
-                  hiddenField.setAttribute("value", value );
-                  form.appendChild(hiddenField);
-                };
-                addField("username", "dummy");
-                addField("password", "dummy");
-                let windowRef = window.open();
+                console.log('x');
+                let windowRef = window.open(
+                  `${host}/anonymous.html`,
+                  'Post anonymously',
+                  'resizable,scrollbars,status,width=600,height=500'
+                );
                 window.__schnack_wait_for_oauth = () => {
-                  windowRef.close();
+                  // windowRef.close();
                   this.refresh();
                 };
-                windowRef.document.body.appendChild(form);
-                form.submit();
               } else {
                 signin();
               }

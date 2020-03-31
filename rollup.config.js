@@ -1,6 +1,7 @@
 // rollup.config.js
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
+import copy from 'rollup-plugin-copy';
 import buble from 'rollup-plugin-buble';
 import uglify from 'rollup-plugin-uglify';
 import jst from 'rollup-plugin-jst';
@@ -15,6 +16,17 @@ const plugins = [
   buble(),
 //  uglify()
 ];
+
+// copy currently does not work as expected... :(
+const pluginsWithCopy = plugins.concat([
+  copy(
+    {
+      targets: [
+        { src: 'src/embed/anonymous.html', dest: 'build/' }
+      ]
+    }
+  )
+]);
 
 export default [
   {
@@ -38,6 +50,6 @@ export default [
       file: 'build/push.js',
       format: 'cjs'
     },
-    plugins
+    plugins: pluginsWithCopy
   }
 ];

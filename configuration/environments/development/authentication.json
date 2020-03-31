@@ -3,8 +3,8 @@
   "providers": [
     {
       "name": "Twitter",
-      "id": "xxxxxx",
-      "secret": "xxxxxx"
+      "id": "",
+      "secret": ""
     },
     {
       "name": "GitHub",

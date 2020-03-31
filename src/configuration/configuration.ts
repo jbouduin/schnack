@@ -38,7 +38,7 @@ export class Configuration {
     const pattern = 'configuration/**/*.+(js|json)';
     const root = {};
 
-    const files = glob.sync(pattern, { cwd: process.cwd(), mount: '/'});
+    const files = glob.sync(pattern);
 
     files
       .forEach(file =>  {

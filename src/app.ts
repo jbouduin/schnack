@@ -2,7 +2,8 @@ import * as bodyParser from 'body-parser';
 import { TypeormStore } from 'connect-typeorm';
 import * as cors from 'cors';
 import * as express from 'express';
-import * as ExpressSession from 'express-session';
+import * as expressSession from 'express-session';
+/* import * as CookieParser from 'cookie-parser'; */
 
 import { Session } from './db/entities';
 
@@ -31,20 +32,20 @@ class App {
     this.app = express();
     this.configurationService = container.get<IConfigurationService>(SERVICETYPES.ConfigurationService);
     this.databaseService = container.get<IDatabaseService>(SERVICETYPES.DatabaseService);
-    return this.configurationService.initialize(this.app)
+    return this.configurationService.initialize(this.app)  // load the configuration files
       .then( configuration => {
         return this.databaseService
-          .initialize(this.app)
+          .initialize(this.app) // create the database connections
           .then(db => {
-            this.config();
+            this.config(); // cors, bodyparser.json, bodyparser.urlencoded, express-session, static
             return Promise.all([
-              container.get<IEventService>(SERVICETYPES.EventService).initialize(this.app),
-              container.get<IUserService>(SERVICETYPES.UserService).initialize(this.app),
-              container.get<IAuthenticationService>(SERVICETYPES.AuthenticationService).initialize(this.app),
-              container.get<IVapidService>(SERVICETYPES.VapidService).initialize(this.app)
+              container.get<IEventService>(SERVICETYPES.EventService).initialize(this.app), // event emitting
+              container.get<IUserService>(SERVICETYPES.UserService).initialize(this.app), // create default users
+              container.get<IAuthenticationService>(SERVICETYPES.AuthenticationService).initialize(this.app), // passport + authentication routes
+              // container.get<IVapidService>(SERVICETYPES.VapidService).initialize(this.app)
             ]);
           })
-          .then(all => container.get<IRouteService>(SERVICETYPES.RouteService).initialize(this.app))
+          .then(all => container.get<IRouteService>(SERVICETYPES.RouteService).initialize(this.app)) // other routes
           .then(vp => Promise.resolve(this));
       })
       .catch(err => { throw err; });
@@ -58,29 +59,30 @@ class App {
   }
 
   private config(): void {
-    container.get<IVapidService>(SERVICETYPES.VapidService).initialize(this.app);
-    this.configurationService.environment.server.serveStatic
-      .forEach(value => this.app.use(express.static(value)));
+    // container.get<IVapidService>(SERVICETYPES.VapidService).initialize(this.app);
+
     this.app.use(cors(
       {
         credentials: true,
-        origin: this.configurationService.checkOrigin
+        origin: this.checkOrigin
       })
     );
 
+    // this.app.use(CookieParser());
     // support application/json type post data
     this.app.use(bodyParser.json());
     // support application/x-www-form-urlencoded post data
     this.app.use(bodyParser.urlencoded({ extended: false }));
 
     const sessionRepository = this.databaseService.getSessionRepository();
-    this.app.use(ExpressSession(
+    this.app.use(expressSession(
       {
         cookie: {
           domain: this.configurationService.getSchnackDomain(),
+          maxAge: 86400000,
           secure: this.configurationService.environment.server.protocol === 'https'
         },
-        name: 'schnackie',
+        name: 'schnackie', // defaults to session.id,
         resave: true,
         saveUninitialized: false,
         secret: this.configurationService.application.secret,
@@ -93,10 +95,22 @@ class App {
         ).connect(sessionRepository)
      }
     ));
+    this.configurationService.environment.server.serveStatic
+      .forEach(value => this.app.use(express.static(value)));
+  }
+
+  public checkOrigin(origin, callback) {
+      // origin is allowed
+      let hostname = container.get<IConfigurationService>(SERVICETYPES.ConfigurationService).environment.server.hostname;
+      if (
+          typeof origin === 'undefined' ||
+          `.${new URL(origin).hostname}`.endsWith(`.${hostname}`)
+      ) {
+          return callback(null, true);
+      }
+
+      callback(new Error('Not allowed by CORS'));
   }
 }
 
 export default new App();
-/*
-const awaiting_moderation = [];
-*/

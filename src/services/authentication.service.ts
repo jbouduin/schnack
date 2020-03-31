@@ -6,7 +6,7 @@ import * as github from 'passport-github2';
 import * as google from 'passport-google-oauth';
 import * as instagram from 'passport-instagram';
 import * as linkedin from 'passport-linkedin';
-import * as local from 'passport-local';
+import * as passportLocal from 'passport-local';
 import * as twitter from 'passport-twitter';
 import 'reflect-metadata';
 
@@ -16,6 +16,8 @@ import SERVICETYPES from './service.types';
 import { IConfigurationService} from './configuration.service';
 import { IService } from './service';
 import { IUserService } from './user.service';
+
+const LocalStrategy = passportLocal.Strategy;
 
 export interface IProvider {
   id: string;
@@ -59,10 +61,13 @@ export class AuthenticationService implements IAuthenticationService {
     const router = express.Router();
 
     passport.serializeUser((user: any, done: any) => {
+      console.log('serializeUser:');
+      console.log(user);
       this.userService
         .findUser(user.provider, user.id)
         .then(row => {
           if (row) {
+            console.log('user found');
             return done(null, row); // welcome back
           }
           // create a new user
@@ -90,6 +95,8 @@ export class AuthenticationService implements IAuthenticationService {
     });
 
     passport.deserializeUser((user: any, done: any) => {
+      console.log('deserializeUser:');
+      console.log(user);
       done(null, { id: user.provider_id, provider: user.provider });
     });
 
@@ -100,10 +107,26 @@ export class AuthenticationService implements IAuthenticationService {
 
     router.get('/success', (request, reply) => {
         const schnackDomain = this.configurationService.getSchnackUrl();
-        reply.send(`<script>
-            document.domain = '${schnackDomain}:8080';
-            window.opener.__schnack_wait_for_oauth();
-        </script>`);
+        console.log('in success');
+        console.log(request.session);
+        reply.send(`<!doctype html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <title>Anonymous access</title>
+            <script>
+                // document.domain = 'localhost'; 'schnackDomain}';
+                console.log(document.domain);
+                console.log(window.opener);
+
+                window.opener.__schnack_wait_for_oauth();
+            </script>
+          </head>
+
+          <body>
+            <h1> OK</h1>
+          </body>
+        </html>`);
     });
 
     if (this.configurationService.environment.authentication.allowAnonymous) {
@@ -148,8 +171,10 @@ export class AuthenticationService implements IAuthenticationService {
 
   private initializeAnonymus(router): void {
     this.providers.push({ id: 'anonymous', name: 'Post anonymous' });
-    passport.use(new local.Strategy(
+    passport.use(new LocalStrategy(
         (user, password, done) => {
+          console.log('using local strategy');
+          // return done(null, false);
           return done(null, { id: 'Anonymous', provider: 'local' });
         }
       )
@@ -158,15 +183,13 @@ export class AuthenticationService implements IAuthenticationService {
     router.post(
       '/anonymous',
       passport.authenticate('local', { session: true}),
-      (request, reply) => {
-        const schnackDomain = this.configurationService.getSchnackDomain();
+      (request, reply, next) => {
+        console.log('in post anonymous');
+        console.log(request.session);
         reply.redirect('/auth/success');
-        // reply.send(`<script>
-        //     document.domain = '${schnackDomain}';
-        //     window.__schnack_wait_for_oauth();
-        // </script>`);
       }
     );
+
   }
 
   private initializeTwitter(router: express.Router, provider: Provider): void {
@@ -289,7 +312,7 @@ export class AuthenticationService implements IAuthenticationService {
     passport.use(
       new linkedin.Strategy(
         {
-          callbackURL: this.buildCallBackUrl('instagram'),
+          callbackURL: this.buildCallBackUrl('linkedin'),
           consumerKey: provider.id,
           consumerSecret: provider.secret
         },
@@ -297,11 +320,11 @@ export class AuthenticationService implements IAuthenticationService {
       )
     );
 
-    router.get('/instagram', passport.authenticate('instagram'));
+    router.get('/linkedin', passport.authenticate('linkedin'));
 
     router.get(
-        '/instagram/callback',
-        passport.authenticate('instagram', { failureRedirect: '/login' }),
+        '/linkedin/callback',
+        passport.authenticate('linkedin', { failureRedirect: '/linkedin' }),
         (request, reply) => { reply.redirect('/success'); }
     );
   }
