@@ -180,13 +180,41 @@ export class AuthenticationService implements IAuthenticationService {
       )
     );
 
+    router.get(
+      '/anonymous',
+      (request, reply) => {
+        reply.send(`
+          <!doctype html>
+
+          <html lang="en">
+            <head>
+              <meta charset="utf-8">
+              <title>Anonymous access</title>
+            </head>
+
+            <body>
+              <center>
+              <h1> do not use in production environment</h1>
+              <form action="/schnack/auth/anonymous" method="post">
+                <input type="hidden" name="username" value ="Anonymous">
+                <input type="hidden" name="password" value ="x">
+                <input type="submit" value="Anonymously comment">
+              </form>'
+              </center>
+            </body>
+          </html>
+          `
+        )
+      }
+    );
+
     router.post(
       '/anonymous',
       passport.authenticate('local', { session: true}),
       (request, reply, next) => {
         console.log('in post anonymous');
         console.log(request.session);
-        reply.redirect('/auth/success');
+        reply.redirect('/schnack/auth/success');
       }
     );
 

@@ -24,7 +24,8 @@
         "embed": "rollup -c",
         "start": "ts-node ./src/server.ts",
         "dev": "nodemon",
-        "test-server": "http-server test -o http://localhost:8080/index.html -c -1"
+        "test-server-old": "http-server test -o http://localhost:8080/index.html -c -1",
+        "test-server": "ts-node ./test/src/server.ts"
     },
     "repository": "git@github.com:gka/schnack.git",
     "dependencies": {
@@ -32,6 +33,7 @@
         "connect-typeorm": "^1.1.3",
         "cors": "^2.8.5",
         "express": "^4.17.1",
+        "express-http-proxy": "^1.6.0",
         "express-modify-response": "^1.0.2",
         "express-session": "^1.17.0",
         "glob": "^7.1.6",

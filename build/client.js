@@ -208,21 +208,12 @@ var $ = function (sel) { return document.querySelector(sel); };
 var $$ = function (sel) { return document.querySelectorAll(sel); };
 
 var Schnack = function Schnack(options) {
+
   this.options = options;
-  this.options.endpoint = (options.host) + "/comments/" + (options.slug);
+  this.options.endpoint = (options.host) + "/schnack/comments/" + (options.slug);
   this.initialized = false;
   this.firstLoad = true;
 
-  var url = new URL(options.host);
-
-  // this is not executed in the browser anymore
-  // it gives a securityerror
-  if (url.hostname !== 'localhost') {
-    document.domain = url.hostname
-      .split('.')
-      .slice(1)
-      .join('.');
-  }
   this.refresh();
 };
 
@@ -235,6 +226,8 @@ Schnack.prototype.refresh = function refresh () {
     var host = ref.host;
     var endpoint = ref.endpoint;
     var partials = ref.partials;
+
+  console.log('in refresh');
 
   index(
     endpoint,
@@ -342,7 +335,7 @@ Schnack.prototype.refresh = function refresh () {
         signout.addEventListener('click', function (e) {
           e.preventDefault();
           index(
-            (host + "/auth/signout"), {
+            (host + "/schnack/auth/signout"), {
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
           })
@@ -368,14 +361,13 @@ Schnack.prototype.refresh = function refresh () {
               };
             };
             if (provider.id === 'anonymous') {
-              console.log('x');
               var windowRef = window.open(
-                (host + "/anonymous.html"),
+                (host + "/schnack/auth/anonymous"),
                 'Post anonymously',
                 'resizable,scrollbars,status,width=600,height=500'
               );
               window.__schnack_wait_for_oauth = function () {
-                // windowRef.close();
+                windowRef.close();
                 this$1.refresh();
               };
             } else {

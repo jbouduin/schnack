@@ -5,7 +5,7 @@ import Schnack from './client';
     if (!script) return console.warn('schnack script tag needs some data attributes');
 
     const opts = script.dataset;
-    const slug = opts.schnackSlug;
+    var slug = opts.schnackSlug;
     const url = new URL(script.getAttribute('src'));
     const host = `${url.protocol}//${url.host}`;
     const partials = {

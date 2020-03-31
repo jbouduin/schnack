@@ -7,26 +7,19 @@ const $$ = sel => document.querySelectorAll(sel);
 
 export default class Schnack {
   constructor(options) {
+
     this.options = options;
-    this.options.endpoint = `${options.host}/comments/${options.slug}`;
+    this.options.endpoint = `${options.host}/schnack/comments/${options.slug}`;
     this.initialized = false;
     this.firstLoad = true;
 
-    const url = new URL(options.host);
-
-    // this is not executed in the browser anymore
-    // it gives a securityerror
-    if (url.hostname !== 'localhost') {
-      document.domain = url.hostname
-        .split('.')
-        .slice(1)
-        .join('.');
-    }
     this.refresh();
   }
 
   refresh() {
     const { target, slug, host, endpoint, partials } = this.options;
+
+    console.log('in refresh');
 
     fetch(
       endpoint,
@@ -134,7 +127,7 @@ export default class Schnack {
           signout.addEventListener('click', e => {
             e.preventDefault();
             fetch(
-              `${host}/auth/signout`, {
+              `${host}/schnack/auth/signout`, {
               credentials: 'include',
               headers: { 'Content-Type': 'application/json' }
             })
@@ -153,19 +146,18 @@ export default class Schnack {
                   'resizable,scrollbars,status,width=600,height=500'
                 );
                 window.__schnack_wait_for_oauth = () => {
-                  // windowRef.close();
+                  windowRef.close();
                   this.refresh();
                 };
               };
               if (provider.id === 'anonymous') {
-                console.log('x');
                 let windowRef = window.open(
-                  `${host}/anonymous.html`,
+                  `${host}/schnack/auth/anonymous`,
                   'Post anonymously',
                   'resizable,scrollbars,status,width=600,height=500'
                 );
                 window.__schnack_wait_for_oauth = () => {
-                  // windowRef.close();
+                  windowRef.close();
                   this.refresh();
                 };
               } else {
