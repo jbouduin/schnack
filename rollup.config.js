@@ -17,17 +17,6 @@ const plugins = [
 //  uglify()
 ];
 
-// copy currently does not work as expected... :(
-const pluginsWithCopy = plugins.concat([
-  copy(
-    {
-      targets: [
-        { src: 'src/embed/anonymous.html', dest: 'build/' }
-      ]
-    }
-  )
-]);
-
 export default [
   {
     input: 'src/embed/index.js',
@@ -35,7 +24,7 @@ export default [
       file: 'build/embed.js',
       format: 'iife'
     },
-    plugins
+    plugins: plugins
   }, {
     input: 'src/embed/client.js',
     output: {
@@ -43,13 +32,13 @@ export default [
       format: 'umd',
       name: 'Schnack'
     },
-    plugins
+    plugins: plugins
   },  {
     input: 'src/embed/push.js',
     output: {
       file: 'build/push.js',
       format: 'cjs'
     },
-    plugins: pluginsWithCopy
+    plugins: plugins
   }
 ];

@@ -19,8 +19,6 @@ export default class Schnack {
   refresh() {
     const { target, slug, host, endpoint, partials } = this.options;
 
-    console.log('in refresh');
-
     fetch(
       endpoint,
       {

@@ -78,7 +78,8 @@ class App {
     this.app.use(expressSession(
       {
         cookie: {
-          domain: this.configurationService.getSchnackDomain(),
+          // this gives a problem in Edge
+          // domain: this.configurationService.getSchnackDomain(),
           maxAge: 86400000,
           secure: this.configurationService.environment.server.protocol === 'https'
         },

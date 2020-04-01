@@ -224,8 +224,6 @@ Schnack.prototype.refresh = function refresh () {
     var endpoint = ref.endpoint;
     var partials = ref.partials;
 
-  console.log('in refresh');
-
   index(
     endpoint,
     {
@@ -364,7 +362,7 @@ Schnack.prototype.refresh = function refresh () {
                 'resizable,scrollbars,status,width=600,height=500'
               );
               window.__schnack_wait_for_oauth = function () {
-                windowRef.close();
+                //windowRef.close();
                 this$1.refresh();
               };
             } else {
